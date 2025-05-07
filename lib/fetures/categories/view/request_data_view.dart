@@ -44,6 +44,9 @@ class _RequestDataViewState extends State<RequestDataView> {
   void initState() {
     BlocProvider.of<GetLocationCubit>(context).getLocation();
     _initializeRequirementControllers();
+    nameController.text =
+        "${pref.getString("firstName")} ${pref.getString("lastName")}";
+    phoneController.text = pref.getString("phone") ?? "";
     super.initState();
   }
 

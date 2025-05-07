@@ -275,11 +275,7 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
                                             ),
                                           ),
                                         ),
-                                        Gap(requestsModel.status ==
-                                                    "completed" &&
-                                                requestsModel.isMultiaple == 1
-                                            ? 10
-                                            : 0),
+                                        const Gap(10),
                                         Expanded(
                                           child: ElevatedButton(
                                             style: ElevatedButton.styleFrom(

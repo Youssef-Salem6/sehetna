@@ -221,8 +221,9 @@ class _CostDialogState extends State<CostDialog>
                                       ? null
                                       : () {
                                           if (widget.isFromHome) {
-                                            _closeDialog();
+                                            // _closeDialog(); // This closes the dialog
                                             Navigator.push(
+                                              // This pushes a new page
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) => RequestDataView(
