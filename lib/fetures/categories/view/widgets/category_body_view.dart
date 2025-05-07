@@ -20,14 +20,27 @@ class CategoryBodyView extends StatefulWidget {
 class _CategoryBodyViewState extends State<CategoryBodyView> {
   @override
   void initState() {
-    BlocProvider.of<GetCategoryServicesCubit>(context)
-        .getCategoryServices(id: widget.categoryId);
+    // Ensure services are loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        BlocProvider.of<GetCategoryServicesCubit>(context)
+            .getCategoryServices(id: widget.categoryId);
+      }
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
+
+    // Calculate adjusted height based on isMultiable
+    // Make container a bit shorter when we have the checkout button
+    double containerHeight = widget.isMultiable == 1
+        ? screenSize.height *
+            0.75 // Shorter height when checkout button is visible
+        : screenSize.height * 0.82;
+
     return BlocConsumer<GetCategoryServicesCubit, GetCategoryServicesState>(
       listener: (context, state) {
         if (state is GetCategoryServicesFailure) {
@@ -47,7 +60,7 @@ class _CategoryBodyViewState extends State<CategoryBodyView> {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              height: screenSize.height * 0.82,
+              height: containerHeight,
               decoration: BoxDecoration(
                 color: const Color(0xffe5f1f7),
                 border: Border.all(color: kPrimaryColor, width: 2),
@@ -59,16 +72,14 @@ class _CategoryBodyViewState extends State<CategoryBodyView> {
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,
                   child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.78,
+                      childAspectRatio: widget.isMultiable == 1 ? 0.65 : 0.78,
                     ),
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
-                          height: screenSize.height * 0.2,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
@@ -89,8 +100,7 @@ class _CategoryBodyViewState extends State<CategoryBodyView> {
                                   color: Colors.white,
                                 ),
                               ),
-                              SizedBox(
-                                height: screenSize.height * 0.11,
+                              Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Container(
@@ -115,22 +125,27 @@ class _CategoryBodyViewState extends State<CategoryBodyView> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
-            height: screenSize.height * 0.82,
+            height: containerHeight,
             decoration: BoxDecoration(
               color: const Color(0xffe5f1f7),
               border: Border.all(color: kPrimaryColor, width: 2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: screenSize.height * 0.8,
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: widget.isMultiable == 1 ? 0.65 : 0.72,
-                  ),
-                  itemBuilder: (context, index) {
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: GridView.builder(
+                padding: EdgeInsets.only(
+                  bottom: widget.isMultiable == 1 ? 60 : 16,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: widget.isMultiable == 1 ? 0.65 : 0.72,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
+                ),
+                itemBuilder: (context, index) {
+                  if (index < cubit.services.length) {
                     ServiceModel serviceModel = ServiceModel.fromJson(
                         json: cubit.services[index],
                         languageCode:
@@ -139,9 +154,10 @@ class _CategoryBodyViewState extends State<CategoryBodyView> {
                       serviceModel: serviceModel,
                       isMultiable: widget.isMultiable,
                     );
-                  },
-                  itemCount: cubit.services.length,
-                ),
+                  }
+                  return const SizedBox();
+                },
+                itemCount: cubit.services.length,
               ),
             ),
           ),

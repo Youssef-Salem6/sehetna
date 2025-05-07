@@ -46,52 +46,49 @@ class _CategoriesViewState extends State<CategoriesView> {
                 )
               ],
             ),
-            Visibility(
-              visible: widget.isMultiable == 1,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Positioned(
-                    bottom: 10,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryColor,
-                        minimumSize: Size(screenSize.width * 0.4, 40),
-                      ),
-                      onPressed: () {
-                        if (BlocProvider.of<ServicesListCubit>(context)
-                            .selectedServices
-                            .isNotEmpty) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) => CostDialog(
-                              requestId: widget.requestId,
-                              isFromHome: widget.isFromHome,
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please select a service"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text(
-                        'CheckOut',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+            // Fixed positioning issue
+            if (widget.isMultiable == 1)
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPrimaryColor,
+                      minimumSize: Size(screenSize.width * 0.4, 40),
+                    ),
+                    onPressed: () {
+                      if (BlocProvider.of<ServicesListCubit>(context)
+                          .selectedServices
+                          .isNotEmpty) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => CostDialog(
+                            requestId: widget.requestId,
+                            isFromHome: widget.isFromHome,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please select a service"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text(
+                      'CheckOut',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-              ),
-            )
+              )
           ],
         ),
       ),
