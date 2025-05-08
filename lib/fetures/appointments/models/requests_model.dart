@@ -59,8 +59,8 @@ class RequestsModel {
     providerPhone = providerData["phone"];
     providerimage = providerData["profile_image"];
     createdAt = json["created_at"];
-    isMultiaple = json["category"]["is_multiple"];
-    categoryId = json["category"]["id"];
-    categoryName = json["category"]["name"][languageCode];
+    isMultiaple = json["services"][0]["category"]["is_multiple"];
+    categoryId = json["services"][0]["category"]["id"];
+    categoryName = json["services"][0]["category"]["name"][languageCode];
   }
 }
