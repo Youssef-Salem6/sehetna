@@ -103,9 +103,7 @@ class _AppointmentViewState extends State<AppointmentView> {
         languageCode: Localizations.localeOf(context).languageCode,
       );
 
-      final providerName =
-          '${requestModel.providerFirstName ?? ''} ${requestModel.providerLastName ?? ''}'
-              .toLowerCase();
+      final providerName = requestModel.name!.toLowerCase();
       final serviceName = requestModel.serviceName!.toLowerCase();
       final status = requestModel.status!.toLowerCase();
 

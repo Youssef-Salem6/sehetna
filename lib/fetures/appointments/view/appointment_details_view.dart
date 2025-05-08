@@ -154,7 +154,7 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
 
                               // Doctor Name
                               Text(
-                                "${requestsModel.providerFirstName} ${requestsModel.providerLastName}",
+                                requestsModel.name!,
                                 style: TextStyle(
                                   color: kPrimaryColor,
                                   fontSize: mediaQuery.size.width * 0.055,

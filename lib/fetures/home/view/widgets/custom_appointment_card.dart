@@ -43,7 +43,7 @@ class CustomAppointmentCard extends StatelessWidget {
                     ),
                     Gap(screenWidth * 0.02),
                     Text(
-                      "${requestsModel.providerFirstName} ${requestsModel.providerLastName}",
+                      requestsModel.name!,
                       style: TextStyle(
                           overflow: TextOverflow.ellipsis,
                           color: kPrimaryColor.withOpacity(0.4),

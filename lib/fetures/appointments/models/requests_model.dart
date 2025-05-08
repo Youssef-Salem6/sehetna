@@ -1,6 +1,6 @@
 class RequestsModel {
   String? id, customerId, serviceId, phone, address, status, serviceName;
-  String? price, providerFirstName, providerLastName, providerType;
+  String? price, name, providerType;
   String? providerimage, providerPhone, createdAt, categoryName;
   bool? hasfeedBack, hasCancellation;
   List? feedbacks, complaints, services;
@@ -12,8 +12,7 @@ class RequestsModel {
     required this.id,
     required this.phone,
     required this.price,
-    required this.providerFirstName,
-    required this.providerLastName,
+    required this.name,
     required this.providerPhone,
     required this.providerType,
     required this.providerimage,
@@ -45,7 +44,7 @@ class RequestsModel {
     serviceName = json["services"][0]["name"][languageCode];
     services = json["services"];
     price = json["total_price"];
-    Map providerData = json["assigned_provider"] ??
+    Map providerData = json["provider"] ??
         {
           "first_name": "Cancellation request",
           "last_name": "",
@@ -53,8 +52,7 @@ class RequestsModel {
           "phone": "No provider Assigned",
           "profile_image": "",
         };
-    providerFirstName = providerData["first_name"];
-    providerLastName = providerData["last_name"];
+    name = providerData["name"];
     providerType = providerData["provider_type"];
     providerPhone = providerData["phone"];
     providerimage = providerData["profile_image"];
