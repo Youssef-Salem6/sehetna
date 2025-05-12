@@ -16,6 +16,6 @@ class ComplainModel {
     response = json["response"];
     subject = json["subject"];
     description = json["description"];
-    createdAt = json["created_at"];
+    createdAt = json["created_at"] ?? "2025-05-02 19:22:29";
   }
 }

@@ -180,7 +180,7 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
                               AppointmentDetailsRow(
                                 image: "assets/images/Icons/callender.svg",
                                 title: S.of(context).date,
-                                value: DateFormat('d - M - y').format(
+                                value: DateFormat('MMMM d, h:mm a').format(
                                     DateTime.parse(requestsModel.createdAt!)),
                               ),
                               AppointmentDetailsRow(

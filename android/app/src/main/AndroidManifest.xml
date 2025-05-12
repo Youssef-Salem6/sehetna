@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     
     <application
-        android:label="Se7etna"
+        android:label="Sehetna - صحتنا"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
