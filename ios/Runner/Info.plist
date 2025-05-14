@@ -45,5 +45,41 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Location permissions for geolocator -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location to find nearby services.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open and in the background to provide location-based services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background for location-based services.</string>
+	
+	<!-- Camera permissions for image_picker -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to take profile photos and upload images.</string>
+	
+	<!-- Photo library permissions for image_picker -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photo library access to select profile pictures and upload images.</string>
+	
+	<!-- Microphone permission (optional, for image_picker with videos) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access to record videos.</string>
+	
+	<!-- Push notifications -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	
+	<!-- URL schemes for url_launcher -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+		<string>tel</string>
+		<string>mailto</string>
+	</array>
 </dict>
 </plist>
