@@ -28,10 +28,9 @@ class S {
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<S> load(Locale locale) {
-    final name =
-        (locale.countryCode?.isEmpty ?? false)
-            ? locale.languageCode
-            : locale.toString();
+    final name = (locale.countryCode?.isEmpty ?? false)
+        ? locale.languageCode
+        : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
@@ -118,6 +117,20 @@ class S {
   /// `Skip`
   String get skip {
     return Intl.message('Skip', name: 'skip', desc: '', args: []);
+  }
+
+  String get requestServices {
+    return Intl.message('Request Services',
+        name: 'requestServices', desc: '', args: []);
+  }
+
+  String get services {
+    return Intl.message('Services', name: 'services', desc: '', args: []);
+  }
+
+  String get noservices {
+    return Intl.message('noservices',
+        name: 'No services available', desc: '', args: []);
   }
 
   /// `Finish`

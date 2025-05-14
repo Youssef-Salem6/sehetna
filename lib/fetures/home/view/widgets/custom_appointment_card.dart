@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:sehetna/const.dart';
+import 'package:sehetna/constants/apis.dart';
 import 'package:sehetna/constants/details.dart';
 import 'package:sehetna/fetures/appointments/models/requests_model.dart';
 import 'package:sehetna/fetures/appointments/view/appointment_details_view.dart';
@@ -72,10 +73,11 @@ class CustomAppointmentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // SvgPicture.asset(
-              //   "assets/images/home/sp1.svg",
-              //   height: screenHeight * 0.1,
-              // ),
+              Image(
+                image: NetworkImage(
+                    "$imagesBaseUrl/${requestsModel.providerimage}"),
+                width: screenWidth * 0.15,
+              )
             ],
           ),
         ),

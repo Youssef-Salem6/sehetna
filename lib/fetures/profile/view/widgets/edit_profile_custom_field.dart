@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class EditProfileCustomField extends StatelessWidget {
   final TextEditingController controller;
@@ -12,19 +11,6 @@ class EditProfileCustomField extends StatelessWidget {
     required this.title,
     this.isReadOnly = false,
   });
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      controller.text = DateFormat('dd/MM/yyyy').format(picked);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

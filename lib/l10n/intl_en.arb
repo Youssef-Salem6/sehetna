@@ -178,6 +178,8 @@
     "addnote" : "Add Note (Optional)",
     "emptyRequests" : "No Requests Yet",
     "emptyOngoingRequests" : "No Ongoing Requests",
-    "addService" : "Add Service"
-
+    "addService" : "Add Service",
+    "requestServices" : "Request Services",
+    "services": "Services",
+    "noservices": "No services available"
 }

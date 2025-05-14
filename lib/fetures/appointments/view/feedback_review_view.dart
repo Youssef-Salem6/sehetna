@@ -31,8 +31,6 @@ class _FeedbackReviewViewState extends State<FeedbackReviewView> {
                       _buildUserCard(),
                       const SizedBox(height: 24),
                       _buildFeedbackCard(),
-                      // const SizedBox(height: 24),
-                      // _buildRatingBreakdown(),
                     ],
                   ),
                 ),
@@ -141,80 +139,6 @@ class _FeedbackReviewViewState extends State<FeedbackReviewView> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildRatingBreakdown() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Rating Details',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildRatingItem('Service Quality',
-                double.tryParse(widget.feedbackModel.rating ?? '0') ?? 0),
-            const SizedBox(height: 8),
-            _buildRatingItem('Communication',
-                double.tryParse(widget.feedbackModel.rating ?? '0') ?? 0),
-            const SizedBox(height: 8),
-            _buildRatingItem('Professionalism',
-                double.tryParse(widget.feedbackModel.rating ?? '0') ?? 0),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value:
-                  (double.tryParse(widget.feedbackModel.rating ?? '0') ?? 0) /
-                      5,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(
-                _getRatingColor(
-                    double.tryParse(widget.feedbackModel.rating ?? '0') ?? 0),
-              ),
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRatingItem(String label, double rating) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[700],
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Row(
-            children: List.generate(5, (index) {
-              return Icon(
-                index < rating.round() ? Icons.star : Icons.star_border,
-                color: _getRatingColor(rating),
-                size: 20,
-              );
-            }),
-          ),
-        ),
-      ],
     );
   }
 

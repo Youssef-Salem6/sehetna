@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:sehetna/constants/apis.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sehetna/const.dart';
 import 'package:sehetna/constants/details.dart';
@@ -98,7 +99,8 @@ class _OngoingRequestsState extends State<OngoingRequests> {
                           child: Column(
                             children: [
                               Text(
-                                cubit.ongoingRequests[index]["services"][0]["name"][
+                                cubit.ongoingRequests[index]["services"][0]
+                                        ["name"][
                                     Localizations.localeOf(context)
                                         .languageCode],
                                 style: const TextStyle(
@@ -107,7 +109,17 @@ class _OngoingRequestsState extends State<OngoingRequests> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600),
                               ),
-                              Gap(screenSize.width * 0.02),
+                              Gap(screenSize.width * 0.015),
+                              Text(
+                                cubit.ongoingRequests[index]["provider"]
+                                    ["name"],
+                                style: TextStyle(
+                                    overflow: TextOverflow.ellipsis,
+                                    color: kPrimaryColor.withOpacity(0.5),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Gap(screenSize.width * 0.015),
                               GestureDetector(
                                 onTap: () {
                                   Navigator.push(
@@ -131,6 +143,11 @@ class _OngoingRequestsState extends State<OngoingRequests> {
                             ],
                           ),
                         ),
+                        Image(
+                          image: NetworkImage(
+                              "$imagesBaseUrl/${cubit.ongoingRequests[index]["provider"]["image"]}"),
+                          width: screenSize.width * 0.14,
+                        )
                       ],
                     ),
                   ),

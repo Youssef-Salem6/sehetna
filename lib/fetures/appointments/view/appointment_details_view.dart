@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:sehetna/const.dart';
+import 'package:sehetna/constants/apis.dart';
 import 'package:sehetna/core/custom_text.dart';
 import 'package:sehetna/fetures/appointments/manager/appointmentDetails/appointment_details_cubit.dart';
 import 'package:sehetna/fetures/appointments/models/feedback_model.dart';
@@ -12,6 +13,7 @@ import 'package:sehetna/fetures/appointments/view/complain_review_view.dart';
 import 'package:sehetna/fetures/appointments/view/complain_view.dart';
 import 'package:sehetna/fetures/appointments/view/feedback_review_view.dart';
 import 'package:sehetna/fetures/appointments/view/feedback_view.dart';
+import 'package:sehetna/fetures/appointments/view/request_services_view.dart';
 import 'package:sehetna/fetures/appointments/view/widgets/appointment_details_row.dart';
 import 'package:sehetna/fetures/appointments/view/widgets/cancel_request_dialog.dart';
 import 'package:sehetna/fetures/categories/manager/servicesList/services_list_cubit.dart';
@@ -141,9 +143,10 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
                                   height: isPortrait
                                       ? mediaQuery.size.height * 0.25
                                       : mediaQuery.size.height * 0.5,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: AssetImage("assets/images/1.png"),
+                                      image: NetworkImage(
+                                          "$imagesBaseUrl/${requestsModel.providerimage}"),
                                       fit: BoxFit.contain,
                                     ),
                                   ),
@@ -182,6 +185,30 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
                                 title: S.of(context).date,
                                 value: DateFormat('MMMM d, h:mm a').format(
                                     DateTime.parse(requestsModel.createdAt!)),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  if (requestsModel.services!.length > 1) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              RequestServicesView(
+                                                  services:
+                                                      requestsModel.services!),
+                                        ));
+                                  }
+                                },
+                                child: AppointmentDetailsRow(
+                                  image:
+                                      "assets/images/Icons/material-symbols_service-toolbox.svg",
+                                  title: S.of(context).serviceType,
+                                  value: requestsModel.services!.length > 1
+                                      ? "${requestsModel.services![0]["name"][Localizations.localeOf(context).languageCode]} + ${requestsModel.services!.length - 1}"
+                                      : requestsModel.services![0]["name"][
+                                          Localizations.localeOf(context)
+                                              .languageCode],
+                                ),
                               ),
                               AppointmentDetailsRow(
                                 image: "assets/images/Icons/location.svg",
