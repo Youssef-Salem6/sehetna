@@ -1,0 +1,2 @@
+C:/Users/salem/OneDrive/Desktop/my projects/sehetna/android/app/.cxx/RelWithDebInfo/2o381d3o/x86/CMakeFiles/edit_cache.dir
+C:/Users/salem/OneDrive/Desktop/my projects/sehetna/android/app/.cxx/RelWithDebInfo/2o381d3o/x86/CMakeFiles/rebuild_cache.dir
