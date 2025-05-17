@@ -30,6 +30,17 @@ class AppointmentDetailsView extends StatefulWidget {
 
 class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
   @override
+  // ignore: override_on_non_overriding_member
+  String getProviderName({required RequestsModel requestModel}) {
+    if (requestModel.status == "cancelled") {
+      return "cancelled request";
+    } else if (requestModel.status == "pending") {
+      return "no Provider Yet";
+    } else {
+      return requestModel.name!;
+    }
+  }
+
   void initState() {
     BlocProvider.of<AppointmentDetailsCubit>(context).getRequestDetails(
       id: widget.id.toString(),
@@ -157,7 +168,7 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
 
                               // Doctor Name
                               Text(
-                                requestsModel.name!,
+                                getProviderName(requestModel: requestsModel),
                                 style: TextStyle(
                                   color: kPrimaryColor,
                                   fontSize: mediaQuery.size.width * 0.055,

@@ -112,7 +112,8 @@ class _OngoingRequestsState extends State<OngoingRequests> {
                               Gap(screenSize.width * 0.015),
                               Text(
                                 cubit.ongoingRequests[index]["provider"]
-                                    ["name"],
+                                        ["name"] ??
+                                    "No Provider Yet",
                                 style: TextStyle(
                                     overflow: TextOverflow.ellipsis,
                                     color: kPrimaryColor.withOpacity(0.5),

@@ -26,6 +26,7 @@ class _HomeViewState extends State<HomeView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    // ignore: unused_local_variable
     final screenSize = MediaQuery.sizeOf(context);
     return Scaffold(
       body: SafeArea(
@@ -45,25 +46,26 @@ class _HomeViewState extends State<HomeView>
                         : "Loading location...";
                   },
                   builder: (context, locationText) {
-                    return Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on,
-                          color: kPrimaryColor,
-                          size: 28,
-                        ),
-                        SizedBox(
-                          width: screenSize.width * 0.8,
-                          child: Text(
-                            locationText,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                    return Container();
+                    // Row(
+                    //   children: [
+                    //     const Icon(
+                    //       Icons.location_on,
+                    //       color: kPrimaryColor,
+                    //       size: 28,
+                    //     ),
+                    //     SizedBox(
+                    //       width: screenSize.width * 0.8,
+                    //       child: Text(
+                    //         locationText,
+                    //         style: const TextStyle(
+                    //           fontWeight: FontWeight.w600,
+                    //           overflow: TextOverflow.ellipsis,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // );
                   },
                 ),
                 const Gap(16),

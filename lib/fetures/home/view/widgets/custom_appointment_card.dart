@@ -12,6 +12,16 @@ class CustomAppointmentCard extends StatelessWidget {
   final RequestsModel requestsModel;
 
   const CustomAppointmentCard({super.key, required this.requestsModel});
+  // ignore: override_on_non_overriding_member
+  String getProviderName({required RequestsModel requestModel}) {
+    if (requestModel.status == "cancelled") {
+      return "cancelled request";
+    } else if (requestModel.status == "pending") {
+      return "no Provider Yet";
+    } else {
+      return requestModel.name!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +54,7 @@ class CustomAppointmentCard extends StatelessWidget {
                     ),
                     Gap(screenWidth * 0.02),
                     Text(
-                      requestsModel.name!,
+                      getProviderName(requestModel: requestsModel),
                       style: TextStyle(
                           overflow: TextOverflow.ellipsis,
                           color: kPrimaryColor.withOpacity(0.4),
@@ -73,10 +83,14 @@ class CustomAppointmentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Image(
-                image: NetworkImage(
-                    "$imagesBaseUrl/${requestsModel.providerimage}"),
-                width: screenWidth * 0.15,
+              Visibility(
+                visible: requestsModel.status != "cancelled" &&
+                    requestsModel.status != "pending",
+                child: Image(
+                  image: NetworkImage(
+                      "$imagesBaseUrl/${requestsModel.providerimage}"),
+                  width: screenWidth * 0.15,
+                ),
               )
             ],
           ),

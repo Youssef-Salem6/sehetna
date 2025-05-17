@@ -52,7 +52,7 @@ class RequestsModel {
           "phone": "No provider Assigned",
           "profile_image": "",
         };
-    name = providerData["name"];
+    name = providerData["name"] ?? "No Provider Yet";
     providerType = providerData["provider_type"];
     providerPhone = providerData["phone"];
     providerimage = providerData["profile_image"];
