@@ -38,6 +38,7 @@ Future<void> main() async {
       BlocProvider(create: (context) => AppointmentDetailsCubit()),
       BlocProvider(create: (context) => GetRequestsCubit()),
       BlocProvider(create: (context) => GetComplaintsCubit()),
+      BlocProvider(create: (context) => OngoingRequestsCubit()),
       BlocProvider(create: (context) => GetCategoryServicesCubit()),
       BlocProvider(create: (context) => CreateServiceCubit()),
       BlocProvider(create: (context) => OngoingRequestsCubit()),

@@ -123,6 +123,8 @@ class _OngoingRequestsState extends State<OngoingRequests> {
                               Gap(screenSize.width * 0.015),
                               GestureDetector(
                                 onTap: () {
+                                  BlocProvider.of<OngoingRequestsCubit>(context)
+                                      .getOngoningRequests();
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
