@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
+
 import 'package:sehetna/const.dart';
 import 'package:sehetna/constants/apis.dart';
 import 'package:sehetna/constants/details.dart';
@@ -88,42 +88,63 @@ class _ServiceCardState extends State<ServiceCard> {
                       ],
                     ),
                   ),
-                  Gap(widget.isMultiable == 1 ? 10 : 40),
+
+                  // Top spacing
+                  SizedBox(height: widget.isMultiable == 1 ? 10 : 20),
+
+                  // Image section
                   Image(
                     width: screenSize.width * 0.1,
                     image: NetworkImage(
                         "$imagesBaseUrl/${widget.serviceModel.icon}"),
                   ),
-                  const Gap(10),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      widget.serviceModel.name!,
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: kPrimaryColor,
-                        fontWeight: FontWeight.w700,
+
+                  const SizedBox(height: 8),
+
+                  // Service name section with expanded layout
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Center(
+                        child: Text(
+                          widget.serviceModel.name!,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: kPrimaryColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: screenSize.height * 0.11,
+
+                  // Description section with expanded layout
+                  Expanded(
+                    flex: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4.0),
                       child: Text(
                         widget.serviceModel.description!,
                         style: TextStyle(
-                            color: kSecondaryColor.withOpacity(0.7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            wordSpacing: 0),
+                          color: kSecondaryColor.withOpacity(0.7),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          height: 1.3,
+                        ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 4,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
+
+                  // Bottom padding
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
