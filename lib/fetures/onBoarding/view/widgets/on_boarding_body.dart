@@ -8,6 +8,7 @@ class OnBoardingBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -18,7 +19,7 @@ class OnBoardingBody extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 body["image"],
-                width: 343,
+                width: size.width * 0.8,
               ),
             ],
           ),

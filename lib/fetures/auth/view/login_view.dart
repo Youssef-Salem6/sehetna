@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:sehetna/core/faceook_logins_service.dart';
 import 'package:sehetna/core/nav_view.dart';
 import 'package:sehetna/core/social_auth_service.dart';
 import 'package:sehetna/fetures/auth/manager/login/login_cubit.dart';
@@ -29,7 +28,6 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController passwordController = TextEditingController();
   SocialAuthService _socialAuthService = SocialAuthService();
-  FaceBookAuthService _faceBookAuthService = FaceBookAuthService();
 
   @override
   Widget build(BuildContext context) {
