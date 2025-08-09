@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sehetna/core/faceook_logins_service.dart';
+import 'package:sehetna/core/social_auth_service.dart';
 import 'package:sehetna/fetures/appointments/manager/getComplanits/get_complaints_cubit.dart';
 import 'package:sehetna/fetures/auth/manager/login/login_cubit.dart';
 import 'package:sehetna/fetures/appointments/manager/appointmentDetails/appointment_details_cubit.dart';
@@ -19,8 +21,11 @@ import 'package:sehetna/firebase_options.dart';
 import 'package:sehetna/generated/l10n.dart';
 import 'package:sehetna/push_notification_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Import your SocialAuthService
 
 late SharedPreferences pref;
+late SocialAuthService socialAuthService;
+late FaceBookAuthService faceBookAuthService;
 bool get isLoggedIn => pref.getString('token')?.isNotEmpty ?? false;
 
 Future<void> main() async {
@@ -28,6 +33,10 @@ Future<void> main() async {
   pref = await SharedPreferences.getInstance();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await PushNotificationServices.init();
+
+  // Initialize SocialAuthService
+  socialAuthService = SocialAuthService();
+  faceBookAuthService = FaceBookAuthService();
 
   final initialLanguage = pref.getString('language') ?? 'en';
 
@@ -56,8 +65,30 @@ Future<void> main() async {
   ));
 }
 
-class SehetnaApp extends StatelessWidget {
+class SehetnaApp extends StatefulWidget {
   const SehetnaApp({super.key});
+
+  @override
+  State<SehetnaApp> createState() => _SehetnaAppState();
+}
+
+class _SehetnaAppState extends State<SehetnaApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Check for initial deep links when app starts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      socialAuthService.checkInitialLink(context);
+      faceBookAuthService.checkInitialLink(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up the social auth service
+    socialAuthService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

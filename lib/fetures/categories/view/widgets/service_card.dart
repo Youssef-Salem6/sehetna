@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:sehetna/const.dart';
 import 'package:sehetna/constants/apis.dart';
 import 'package:sehetna/constants/details.dart';

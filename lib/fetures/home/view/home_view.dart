@@ -36,7 +36,7 @@ class _HomeViewState extends State<HomeView>
             SliverList(
               delegate: SliverChildListDelegate([
                 CustomImageRow(
-                    name: pref.getString("firstName")!,
+                    name: pref.getString("firstName") ??"",
                     image: "$imagesBaseUrl/${pref.getString("image")!}"),
                 const Gap(12),
                 BlocSelector<GetLocationCubit, GetLocationState, String>(
@@ -47,25 +47,6 @@ class _HomeViewState extends State<HomeView>
                   },
                   builder: (context, locationText) {
                     return Container();
-                    // Row(
-                    //   children: [
-                    //     const Icon(
-                    //       Icons.location_on,
-                    //       color: kPrimaryColor,
-                    //       size: 28,
-                    //     ),
-                    //     SizedBox(
-                    //       width: screenSize.width * 0.8,
-                    //       child: Text(
-                    //         locationText,
-                    //         style: const TextStyle(
-                    //           fontWeight: FontWeight.w600,
-                    //           overflow: TextOverflow.ellipsis,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // );
                   },
                 ),
                 const Gap(16),

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:sehetna/core/faceook_logins_service.dart';
 import 'package:sehetna/core/nav_view.dart';
+import 'package:sehetna/core/social_auth_service.dart';
 import 'package:sehetna/fetures/auth/manager/login/login_cubit.dart';
 import 'package:sehetna/fetures/auth/view/forget_password_view.dart';
 import 'package:sehetna/fetures/auth/view/widget/Custom_Button.dart';
@@ -26,6 +28,8 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   TextEditingController passwordController = TextEditingController();
+  SocialAuthService _socialAuthService = SocialAuthService();
+  FaceBookAuthService _faceBookAuthService = FaceBookAuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -256,20 +260,56 @@ class _LoginViewState extends State<LoginView> {
                                                         size: 16),
                                                   ),
                                                   const Gap(20),
-                                                  const Row(
+                                                  Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .spaceEvenly,
                                                     children: [
-                                                      CustomIcon(
-                                                          image:
-                                                              "assets/images/akar-icons_google-contained-fill.svg"),
-                                                      CustomIcon(
-                                                          image:
-                                                              "assets/images/appleLogo.svg"),
-                                                      CustomIcon(
-                                                          image:
-                                                              "assets/images/faceBookLogo.svg"),
+                                                      // GestureDetector(
+                                                      //   onTap: () async {
+                                                      //     try {
+                                                      //       await _faceBookAuthService
+                                                      //           .initiateFacebookLogin(
+                                                      //               context);
+                                                      //     } catch (e) {
+                                                      //       ScaffoldMessenger
+                                                      //               .of(context)
+                                                      //           .showSnackBar(
+                                                      //         SnackBar(
+                                                      //           content: Text(
+                                                      //               'Google login failed: $e'),
+                                                      //         ),
+                                                      //       );
+                                                      //     }
+                                                      //   },
+                                                      //   child: const CustomIcon(
+                                                      //       image:
+                                                      //           "assets/images/faceBookLogo.svg"),
+                                                      // ),
+                                                      // CustomIcon(
+                                                      //     image:
+                                                      //         "assets/images/appleLogo.svg"),
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          try {
+                                                            await _socialAuthService
+                                                                .initiateGoogleLogin(
+                                                                    context);
+                                                          } catch (e) {
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                    'FaceBook login failed: $e'),
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        child: const CustomIcon(
+                                                            image:
+                                                                "assets/images/akar-icons_google-contained-fill.svg"),
+                                                      ),
                                                     ],
                                                   ),
                                                   const Gap(30),

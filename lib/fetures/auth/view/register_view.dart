@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:sehetna/core/nav_view.dart';
+import 'package:sehetna/core/social_auth_service.dart';
 import 'package:sehetna/fetures/auth/manager/register/register_cubit.dart';
 import 'package:sehetna/fetures/auth/view/widget/Custom_Button.dart';
 import 'package:sehetna/core/custom_text.dart';
@@ -30,6 +31,7 @@ class _RegisterViewState extends State<RegisterView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+  SocialAuthService _socialAuthService = SocialAuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -220,20 +222,38 @@ class _RegisterViewState extends State<RegisterView> {
                                                         size: 16),
                                                   ),
                                                   const Gap(20),
-                                                  const Row(
+                                                  Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .spaceEvenly,
                                                     children: [
-                                                      CustomIcon(
-                                                          image:
-                                                              "assets/images/akar-icons_google-contained-fill.svg"),
-                                                      CustomIcon(
-                                                          image:
-                                                              "assets/images/appleLogo.svg"),
-                                                      CustomIcon(
-                                                          image:
-                                                              "assets/images/faceBookLogo.svg"),
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          try {
+                                                            await _socialAuthService
+                                                                .initiateGoogleLogin(
+                                                                    context);
+                                                          } catch (e) {
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                    'FaceBook login failed: $e'),
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        child: const CustomIcon(
+                                                            image:
+                                                                "assets/images/akar-icons_google-contained-fill.svg"),
+                                                      ),
+                                                      // CustomIcon(
+                                                      //     image:
+                                                      //         "assets/images/appleLogo.svg"),
+                                                      // CustomIcon(
+                                                      //     image:
+                                                      //         "assets/images/faceBookLogo.svg"),
                                                     ],
                                                   ),
                                                   const Gap(30),
