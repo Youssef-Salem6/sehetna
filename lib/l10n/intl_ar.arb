@@ -177,5 +177,7 @@
     "additionalNote": "ملاحظة إضافية",
     "addnote": "إضافة ملاحظة (اختياري)",
     "emptyRequests" : "لا يوجد طلبات بعد",
-    "emptyOngoingRequests" : "لا يوجد طلبات جاريه"
+    "emptyOngoingRequests" : "لا يوجد طلبات جاريه",
+    "deleteAccount" : "حذف الحساب",
+    "deleteDialog" : "هل انت متأكد من انك تريد مسح حسابك؟ هذا الفعل لا يمكن الرجوع فيه"
 }

@@ -5,6 +5,7 @@ import 'package:sehetna/constants/apis.dart';
 import 'package:sehetna/fetures/home/manager/ongoingRequests/ongoing_requests_cubit.dart';
 import 'package:sehetna/fetures/home/view/widgets/category_list.dart';
 import 'package:sehetna/fetures/home/view/widgets/ongoiong_requests.dart';
+import 'package:sehetna/generated/l10n.dart';
 import 'package:sehetna/main.dart';
 import 'package:sehetna/const.dart';
 import 'package:sehetna/fetures/home/manager/getLocation/get_location_cubit.dart';
@@ -36,7 +37,7 @@ class _HomeViewState extends State<HomeView>
             SliverList(
               delegate: SliverChildListDelegate([
                 CustomImageRow(
-                    name: pref.getString("firstName") ??"",
+                    name: pref.getString("firstName") ?? "",
                     image: "$imagesBaseUrl/${pref.getString("image")!}"),
                 const Gap(12),
                 BlocSelector<GetLocationCubit, GetLocationState, String>(
@@ -58,11 +59,11 @@ class _HomeViewState extends State<HomeView>
             SliverList(
               delegate: SliverChildListDelegate([
                 const Gap(12),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Ongoing Request",
-                    style: TextStyle(
+                    S.of(context).ongoingRequests,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: kPrimaryColor,

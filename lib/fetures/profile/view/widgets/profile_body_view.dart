@@ -9,6 +9,7 @@ import 'package:sehetna/fetures/profile/view/change_paswword_view.dart';
 import 'package:sehetna/fetures/profile/view/edit_profile_view.dart';
 import 'package:sehetna/fetures/profile/view/profile_view.dart';
 import 'package:sehetna/fetures/profile/view/widgets/bloc_list.dart';
+import 'package:sehetna/fetures/profile/view/widgets/delete_account_dialog.dart';
 import 'package:sehetna/fetures/profile/view/widgets/language_bottom_sheet.dart';
 import 'package:sehetna/fetures/profile/view/widgets/log_out_dialog.dart';
 import 'package:sehetna/generated/l10n.dart';
@@ -77,7 +78,7 @@ class _ProfileBodyViewState extends State<ProfileBodyView> {
                       );
                     },
                     leading: SvgPicture.asset(
-                      "assets/images/Icons/majesticons_creditcard-plus.svg",
+                      "assets/images/Icons/ic_twotone-security.svg",
                     ),
                     title: CustomTxt(txt: S.of(context).Password, size: 16),
                     trailing: SvgPicture.asset(
@@ -126,7 +127,7 @@ class _ProfileBodyViewState extends State<ProfileBodyView> {
                         },
                       );
                     },
-                    leading: Image.asset("assets/images/Icons/translate.png"),
+                    leading: Image.asset("assets/images/Icons/Vector.png"),
                     title: CustomTxt(txt: S.of(context).language, size: 16),
                     trailing: SvgPicture.asset(
                         "assets/images/Icons/ic_round-arrow-left.svg"),
@@ -138,6 +139,19 @@ class _ProfileBodyViewState extends State<ProfileBodyView> {
                     trailing: SvgPicture.asset(
                         "assets/images/Icons/ic_round-arrow-left.svg"),
                   ),
+                  ListTile(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const DeleteAccountDialog(),
+                      );
+                    },
+                    leading: SvgPicture.asset("assets/images/Icons/Delete.svg"),
+                    title:
+                        CustomTxt(txt: S.of(context).deleteAccount, size: 16),
+                    trailing: SvgPicture.asset(
+                        "assets/images/Icons/ic_round-arrow-left.svg"),
+                  ),
                   GestureDetector(
                     onTap: () {
                       showDialog(
@@ -146,8 +160,8 @@ class _ProfileBodyViewState extends State<ProfileBodyView> {
                       );
                     },
                     child: ListTile(
-                      leading: SvgPicture.asset(
-                          "assets/images/Icons/solar_logout-3-bold.svg"),
+                      leading:
+                          SvgPicture.asset("assets/images/Icons/Vector.svg"),
                       title: CustomTxt(txt: S.of(context).logout, size: 16),
                       trailing: SvgPicture.asset(
                           "assets/images/Icons/ic_round-arrow-left.svg"),

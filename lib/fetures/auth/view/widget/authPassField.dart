@@ -22,8 +22,6 @@ class AuthPassField extends StatefulWidget {
 }
 
 class _AuthPassFieldState extends State<AuthPassField> {
-
-
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -47,7 +45,7 @@ class _AuthPassFieldState extends State<AuthPassField> {
           },
           child: Icon(
             widget.hide ? Icons.visibility : Icons.visibility_off,
-            color: kPrimaryColor,
+            color: kSecondaryColor,
           ),
         ),
         enabledBorder: OutlineInputBorder(

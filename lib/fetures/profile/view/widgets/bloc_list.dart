@@ -18,7 +18,7 @@ class BlocList extends StatelessWidget {
         Gap(screenSize.height * 0.01),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xffE5F1F7),
+            color: const Color(0xFFD6E4F5),
             boxShadow: Details.boxShadowList,
             borderRadius: BorderRadius.circular(10),
           ),

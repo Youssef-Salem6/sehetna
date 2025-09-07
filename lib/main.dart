@@ -21,7 +21,6 @@ import 'package:sehetna/firebase_options.dart';
 import 'package:sehetna/generated/l10n.dart';
 import 'package:sehetna/push_notification_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// Import your SocialAuthService
 
 late SharedPreferences pref;
 late SocialAuthService socialAuthService;

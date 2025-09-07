@@ -29,7 +29,10 @@ class _ServiceViewState extends State<ServiceView> {
           body: SafeArea(
             child: Column(
               children: [
-                CategoryCustomAppBar(categoryName: widget.serviceModel.name!),
+                CategoryCustomAppBar(
+                  categoryName: widget.serviceModel.name!,
+                  isNeeded: false,
+                ),
                 const Gap(10),
                 Image(
                   image: NetworkImage(

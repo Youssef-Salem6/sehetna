@@ -8,32 +8,57 @@ import 'package:sehetna/core/nav_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
+import 'dart:io';
 
 class FaceBookAuthService {
   static const String baseUrl = 'https://api.sehtnaa.com/api';
+  static const Duration _authTimeout = Duration(minutes: 3);
+  static const Duration _requestTimeout = Duration(seconds: 15);
+
   AppLinks? _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
   BuildContext? _context;
   Timer? _timeoutTimer;
   bool _isProcessing = false;
 
-  FaceBookAuthService() {
+  // Singleton pattern
+  static final FaceBookAuthService _instance = FaceBookAuthService._internal();
+  factory FaceBookAuthService() => _instance;
+  FaceBookAuthService._internal() {
     _initializeAppLinks();
   }
 
-  void _initializeAppLinks() {
+  Future<void> _initializeAppLinks() async {
     try {
       _appLinks = AppLinks();
-      print('AppLinks initialized successfully');
+      print('✅ AppLinks initialized successfully');
+      await _checkInitialLink();
     } catch (e) {
-      print('Error initializing AppLinks: $e');
+      print('❌ Error initializing AppLinks: $e');
       _appLinks = null;
     }
   }
 
+  Future<void> _checkInitialLink() async {
+    try {
+      if (_appLinks == null) return;
+
+      final uri = await _appLinks!.getInitialLink();
+      if (uri != null) {
+        print('🔗 Initial deep link found: $uri');
+        if (_isProcessing) {
+          await _handleDeepLink(uri);
+        }
+      }
+    } catch (e) {
+      print('❌ Error checking initial link: $e');
+    }
+  }
+
+  /// Main entry point for Facebook authentication
   Future<void> initiateFacebookLogin(BuildContext context) async {
     if (_isProcessing) {
-      print('Facebook login already in progress, ignoring request');
+      print('⚠️ Facebook login already in progress, ignoring request');
       return;
     }
 
@@ -41,91 +66,131 @@ class FaceBookAuthService {
       _isProcessing = true;
       _context = context;
 
-      print('Starting Facebook login process...');
+      print('🚀 Starting Facebook login process...');
 
-      // Start listening for deep links BEFORE launching the URL
-      _startListeningForDeepLinks();
-
-      // Set up timeout
+      // Preparation steps
+      await _clearPreviousAuthState();
+      await _startListeningForDeepLinks();
       _setupTimeout();
 
-      // 1. Get the Facebook auth URL from your backend
-      final response = await http.get(
-        Uri.parse('$baseUrl/auth/social/facebook/url'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      print('=== GET AUTH URL RESPONSE ===');
-      print('Status Code: ${response.statusCode}');
-      print('Headers: ${response.headers}');
-      print('Body: ${response.body}');
-      print('=== END AUTH URL RESPONSE ===');
-
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Failed to get Facebook auth URL: ${response.statusCode}');
+      // Get auth URL and launch
+      final authUrl = await _getFacebookAuthUrl();
+      if (authUrl?.isEmpty ?? true) {
+        throw Exception('Invalid auth URL received from server');
       }
 
-      final responseData = json.decode(response.body);
-
-      // Handle different response formats
-      String? authUrl;
-      if (responseData['success'] == true && responseData['data'] != null) {
-        authUrl = responseData['data']['url'];
-      } else if (responseData['url'] != null) {
-        authUrl = responseData['url'];
-      } else {
-        throw Exception('No auth URL found in response');
-      }
-
-      if (authUrl == null || authUrl.isEmpty) {
-        throw Exception('Invalid auth URL received');
-      }
-
-      print('Auth URL received: $authUrl');
-
-      // Show loading message
       _showLoadingMessage(context, 'Opening Facebook for authentication...');
-
-      // 2. Launch the URL - try Facebook app first, then fallback to browser
-      final uri = Uri.parse(authUrl);
-
-      // First try to open with Facebook app by using the facebook:// scheme if possible
-      // Facebook URLs can be opened directly with the Facebook app
-      bool launched = false;
-
-      // Try to launch with external application mode first (will prefer Facebook app)
-      if (await canLaunchUrl(uri)) {
-        launched = await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
-
-        if (launched) {
-          print('Successfully launched Facebook auth URL');
-          _showLoadingMessage(
-              context, 'Please complete authentication in Facebook...');
-        } else {
-          throw Exception('Failed to launch Facebook auth URL');
-        }
-      } else {
-        throw Exception('Could not launch $authUrl');
-      }
+      await _launchFacebookAuth(authUrl!);
     } catch (e) {
-      print('Error in initiateFacebookLogin: $e');
-      _showErrorMessage(context, 'Facebook login failed: ${e.toString()}');
+      print('❌ Error in initiateFacebookLogin: $e');
+      _showErrorMessage(
+          context, 'Facebook login failed: ${_getReadableErrorMessage(e)}');
       _cleanup();
     }
   }
 
+  Future<String?> _getFacebookAuthUrl() async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/auth/social/facebook/url'),
+            headers: _getDefaultHeaders(),
+          )
+          .timeout(_requestTimeout);
+
+      _logResponse('GET AUTH URL', response);
+
+      if (response.statusCode != 200) {
+        throw HttpException('Failed to get auth URL: ${response.statusCode}');
+      }
+
+      final responseData = json.decode(response.body);
+      return _extractAuthUrl(responseData);
+    } catch (e) {
+      print('❌ Error getting Facebook auth URL: $e');
+      rethrow;
+    }
+  }
+
+  String? _extractAuthUrl(Map<String, dynamic> responseData) {
+    // Handle different response formats from backend
+    if (responseData['success'] == true && responseData['data'] != null) {
+      return responseData['data']['url'];
+    }
+
+    return responseData['url'] ??
+        responseData['authUrl'] ??
+        responseData['auth_url'];
+  }
+
+  Future<void> _launchFacebookAuth(String authUrl) async {
+    final uri = Uri.parse(authUrl);
+    bool launched = false;
+
+    try {
+      // Platform-specific launch strategies
+      if (Platform.isIOS) {
+        launched = await _launchForIOS(uri);
+      } else if (Platform.isAndroid) {
+        launched = await _launchForAndroid(uri);
+      }
+
+      if (!launched) {
+        launched = await _fallbackLaunch(uri);
+      }
+
+      if (launched) {
+        print('✅ Successfully launched Facebook auth URL');
+        _showLoadingMessage(_context!,
+            'Complete authentication in Facebook and return to the app...');
+      } else {
+        throw Exception('Could not launch Facebook authentication');
+      }
+    } catch (e) {
+      print('❌ Error launching Facebook auth: $e');
+      throw Exception('Failed to open Facebook login: ${e.toString()}');
+    }
+  }
+
+  Future<bool> _launchForIOS(Uri uri) async {
+    return await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  Future<bool> _launchForAndroid(Uri uri) async {
+    // Try external non-browser first, then fallback
+    bool launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalNonBrowserApplication,
+    );
+
+    if (!launched) {
+      launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    }
+
+    return launched;
+  }
+
+  Future<bool> _fallbackLaunch(Uri uri) async {
+    return await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+  }
+
+  Future<void> _clearPreviousAuthState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('temp_auth_state');
+    } catch (e) {
+      print('⚠️ Error clearing previous auth state: $e');
+    }
+  }
+
   void _setupTimeout() {
-    // Set up a timeout to stop listening after 5 minutes
-    _timeoutTimer = Timer(const Duration(minutes: 5), () {
-      print('Authentication timeout reached');
-      if (_context != null) {
+    _timeoutTimer?.cancel();
+    _timeoutTimer = Timer(_authTimeout, () {
+      print('⏰ Authentication timeout reached');
+      if (_context?.mounted ?? false) {
         _showErrorMessage(
             _context!, 'Authentication timed out. Please try again.');
       }
@@ -133,25 +198,24 @@ class FaceBookAuthService {
     });
   }
 
-  void _startListeningForDeepLinks() {
-    print('Starting to listen for deep links...');
-    _linkSubscription?.cancel(); // Cancel any existing subscription
+  Future<void> _startListeningForDeepLinks() async {
+    print('👂 Starting to listen for deep links...');
+    _linkSubscription?.cancel();
 
     if (_appLinks == null) {
-      print('AppLinks not initialized, cannot listen for deep links');
-      _showErrorMessage(_context!, 'Deep link functionality not available');
-      _cleanup();
-      return;
+      throw Exception('Deep link functionality not available');
     }
 
     _linkSubscription = _appLinks!.uriLinkStream.listen(
       (uri) {
-        print('Deep link received: $uri');
-        _handleDeepLink(uri);
+        print('🔗 Deep link received: $uri');
+        if (_isProcessing) {
+          _handleDeepLink(uri);
+        }
       },
       onError: (err) {
-        print('Deep link error: $err');
-        if (_context != null) {
+        print('❌ Deep link error: $err');
+        if (_context?.mounted ?? false) {
           _showErrorMessage(_context!, 'Deep link error: $err');
         }
         _cleanup();
@@ -160,256 +224,200 @@ class FaceBookAuthService {
   }
 
   Future<void> _handleDeepLink(Uri uri) async {
-    if (!_isProcessing) {
-      print('Not processing auth, ignoring deep link');
+    if (!_isProcessing || _context?.mounted != true) {
+      print('⚠️ Not processing auth or context invalid, ignoring deep link');
       return;
     }
 
-    print('=== DEEP LINK RECEIVED ===');
-    print('Full URI: $uri');
-    print('Scheme: ${uri.scheme}');
-    print('Host: ${uri.host}');
-    print('Path: ${uri.path}');
-    print('Fragment: ${uri.fragment}');
-    print('Query: ${uri.query}');
-    print('Query Parameters: ${uri.queryParameters}');
-    print('=== END DEEP LINK INFO ===');
+    _logDeepLink(uri);
 
-    if (_context == null) {
-      print('Context is null, cannot handle deep link');
-      return;
-    }
-
-    // Check if it's an auth callback
     if (uri.scheme == 'sehetna' && uri.host == 'auth') {
-      _timeoutTimer?.cancel(); // Cancel timeout since we got a response
-
+      _timeoutTimer?.cancel();
       final queryParams = uri.queryParameters;
-      print('Auth callback parameters: $queryParams');
 
       if (queryParams.containsKey('error')) {
-        // Handle authentication error
-        final error = queryParams['error'] ?? 'Unknown error';
-        final errorDescription = queryParams['error_description'] ?? '';
-        print('Error in auth callback: $error - $errorDescription');
-
-        String userMessage = 'Authentication failed';
-        if (error == 'access_denied') {
-          userMessage = 'Login was cancelled by user';
-        } else if (error == 'user_denied') {
-          userMessage = 'Facebook login was cancelled';
-        } else if (errorDescription.isNotEmpty) {
-          userMessage = errorDescription;
-        }
-
-        _showErrorMessage(_context!, userMessage);
-        _cleanup();
-        return;
-      }
-
-      if (queryParams.containsKey('success') &&
-          queryParams['success'] == 'true') {
-        // Handle new format with base64 encoded data
-        if (queryParams.containsKey('data')) {
-          final encodedData = queryParams['data']!;
-          print('=== BASE64 ENCODED DATA RECEIVED ===');
-          print('Encoded Data: $encodedData');
-          print('=== END ENCODED DATA ===');
-
-          await _handleBase64EncodedResponse(encodedData, queryParams);
-        } else {
-          print('Success response but no data found');
-          _showErrorMessage(_context!, 'Authentication response missing data');
-          _cleanup();
-        }
-      } else if (queryParams.containsKey('token')) {
-        // Direct token in deep link (legacy format)
-        final token = queryParams['token']!;
-        print('Token found in deep link: $token');
-        await _handleSuccessfulAuth(token, queryParams);
-      } else if (queryParams.containsKey('code')) {
-        // OAuth authorization code - need to exchange for token
-        final code = queryParams['code']!;
-        print('Authorization code found: $code');
-        await _exchangeCodeForToken(code);
+        await _handleAuthError(queryParams);
+      } else if (_isSuccessResponse(queryParams)) {
+        await _processSuccessResponse(queryParams);
       } else {
-        print('No token, code, or success data found in auth callback');
-        _showErrorMessage(_context!,
-            'Invalid authentication response - no token or code received');
+        _showErrorMessage(_context!, 'Invalid authentication response');
         _cleanup();
       }
-    } else {
-      print('Deep link is not an auth callback: ${uri.scheme}://${uri.host}');
     }
+  }
+
+  bool _isSuccessResponse(Map<String, String> queryParams) {
+    return (queryParams['success'] == 'true') ||
+        queryParams.containsKey('token') ||
+        queryParams.containsKey('code') ||
+        queryParams.containsKey('data');
+  }
+
+  Future<void> _processSuccessResponse(Map<String, String> queryParams) async {
+    if (queryParams.containsKey('data')) {
+      await _handleBase64EncodedResponse(queryParams['data']!);
+    } else if (queryParams.containsKey('token')) {
+      await _handleDirectToken(queryParams['token']!);
+    } else if (queryParams.containsKey('code')) {
+      await _exchangeCodeForToken(queryParams['code']!);
+    }
+  }
+
+  Future<void> _handleAuthError(Map<String, String> queryParams) async {
+    final error = queryParams['error'] ?? 'Unknown error';
+    final errorDescription = queryParams['error_description'] ?? '';
+
+    print('❌ Error in auth callback: $error - $errorDescription');
+
+    final userMessage = _getUserFriendlyErrorMessage(error, errorDescription);
+    _showErrorMessage(_context!, userMessage);
+    _cleanup();
+  }
+
+  String _getUserFriendlyErrorMessage(String error, String errorDescription) {
+    switch (error) {
+      case 'access_denied':
+      case 'user_denied':
+        return 'Facebook login was cancelled';
+      case 'temporarily_unavailable':
+        return 'Facebook is temporarily unavailable. Please try again later.';
+      default:
+        return errorDescription.isNotEmpty
+            ? errorDescription
+            : 'Authentication failed';
+    }
+  }
+
+  Future<void> _handleDirectToken(String token) async {
+    print('🎟️ Direct token received');
+    await _handleSuccessfulAuth(token, {});
   }
 
   Future<void> _exchangeCodeForToken(String code) async {
     try {
-      print('Exchanging authorization code for token...');
+      print('🔄 Exchanging authorization code for token...');
       _showLoadingMessage(_context!, 'Processing authentication...');
 
-      print('=== TOKEN EXCHANGE REQUEST ===');
-      print('URL: $baseUrl/auth/social/facebook/callback');
-      print('Headers: ${{
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      }}');
-      print('Body: ${json.encode({'code': code})}');
-      print('=== END REQUEST ===');
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/auth/social/facebook/callback'),
+            headers: _getDefaultHeaders(),
+            body: json.encode({'code': code}),
+          )
+          .timeout(_requestTimeout);
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/social/facebook/callback'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'code': code,
-        }),
-      );
-
-      print('=== TOKEN EXCHANGE RESPONSE ===');
-      print('Status Code: ${response.statusCode}');
-      print('Headers: ${response.headers}');
-      print('Body: ${response.body}');
-      print('=== END RESPONSE ===');
+      _logResponse('TOKEN EXCHANGE', response);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
+        final authData = _extractTokenAndUserData(responseData);
 
-        // Handle different response formats
-        String? token;
-        Map<String, dynamic> userData = {};
-
-        if (responseData['success'] == true && responseData['data'] != null) {
-          token = responseData['data']['token'];
-          userData = responseData['data']['user'] ?? {};
-        } else {
-          token = responseData['token'] ?? responseData['access_token'];
-          userData = responseData['user'] ?? {};
-        }
-
-        if (token != null && token.isNotEmpty) {
-          print('=== TOKEN SUCCESSFULLY EXCHANGED ===');
-          print('Token: ${token.substring(0, 50)}...');
-          print('User Data: ${json.encode(userData)}');
-          print('=== END TOKEN INFO ===');
-          await _handleSuccessfulAuth(token, {'user': userData});
+        if (authData['token']?.isNotEmpty ?? false) {
+          await _handleSuccessfulAuth(authData['token'], authData['userData']);
         } else {
           throw Exception('No valid token received from server');
         }
       } else {
-        final errorBody = response.body;
-        print(
-            'Token exchange failed with status ${response.statusCode}: $errorBody');
-        throw Exception('Server error: ${response.statusCode}');
+        final errorData = json.decode(response.body);
+        throw Exception(
+            errorData['message'] ?? 'Server error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error exchanging code for token: $e');
-      _showErrorMessage(
-          _context!, 'Failed to complete authentication: ${e.toString()}');
+      print('❌ Error exchanging code for token: $e');
+      _showErrorMessage(_context!,
+          'Failed to complete authentication: ${_getReadableErrorMessage(e)}');
       _cleanup();
     }
+  }
+
+  Map<String, dynamic> _extractTokenAndUserData(
+      Map<String, dynamic> responseData) {
+    String? token;
+    Map<String, dynamic> userData = {};
+
+    if (responseData['success'] == true && responseData['data'] != null) {
+      token = responseData['data']['token'];
+      userData = responseData['data']['user'] ?? {};
+    } else {
+      token = responseData['token'] ?? responseData['access_token'];
+      userData = responseData['user'] ?? {};
+    }
+
+    return {'token': token, 'userData': userData};
   }
 
   Future<void> _handleSuccessfulAuth(
       String token, Map<String, dynamic> extraData) async {
     try {
-      print('=== HANDLING SUCCESSFUL AUTH ===');
-      print('Token: ${token.substring(0, 20)}...');
-      print('Extra data: $extraData');
-
+      print('✅ Handling successful authentication');
       _showLoadingMessage(_context!, 'Completing login...');
 
-      // Verify the token and get user data
-      final userData = await _verifyAndGetUserData(token);
-      print('User data from backend: $userData');
+      final userData = await _verifyAndGetUserData(token) ?? extraData;
+      await _storeAuthData(token, userData);
 
-      // Store authentication data
-      await _storeAuthData(token, userData ?? {});
-      print('=== AUTH DATA STORAGE ===');
-      print('Token stored: ${token.substring(0, 20)}...');
-      print('User data stored: ${json.encode(userData ?? {})}');
-      print('=== END STORAGE INFO ===');
-
-      // Send FCM token if context is still valid
-      if (_context != null && _context!.mounted) {
-        try {
-          BlocProvider.of<SendFcmTokenCubit>(_context!).sendToken();
-          print('FCM token sent');
-        } catch (e) {
-          print('Error sending FCM token (non-critical): $e');
-        }
-      }
-
-      // Navigate to home screen
-      if (_context != null && _context!.mounted) {
-        Navigator.pushAndRemoveUntil(
-          _context!,
-          MaterialPageRoute(builder: (context) => const NavView()),
-          (route) => false,
-        );
-        print('Navigated to NavView');
-
-        _showSuccessMessage(_context!, 'Login successful! Welcome back.');
-      }
-
-      print('=== AUTH SUCCESS COMPLETE ===');
+      await _sendFcmToken();
+      await _navigateToHome(userData);
     } catch (e) {
-      print('Error in _handleSuccessfulAuth: $e');
-      _showErrorMessage(_context!, 'Authentication failed: ${e.toString()}');
+      print('❌ Error in successful auth handler: $e');
+      _showErrorMessage(
+          _context!, 'Authentication failed: ${_getReadableErrorMessage(e)}');
     } finally {
       _cleanup();
     }
   }
 
+  Future<void> _sendFcmToken() async {
+    if (_context?.mounted ?? false) {
+      try {
+        BlocProvider.of<SendFcmTokenCubit>(_context!).sendToken();
+        print('📱 FCM token sent');
+      } catch (e) {
+        print('⚠️ Error sending FCM token (non-critical): $e');
+      }
+    }
+  }
+
+  Future<void> _navigateToHome(Map<String, dynamic> userData) async {
+    if (_context?.mounted ?? false) {
+      Navigator.pushAndRemoveUntil(
+        _context!,
+        MaterialPageRoute(builder: (context) => const NavView()),
+        (route) => false,
+      );
+
+      final userName = _extractUserName(userData);
+      _showSuccessMessage(
+          _context!, 'Login successful! Welcome back, $userName.');
+    }
+  }
+
+  String _extractUserName(Map<String, dynamic> userData) {
+    return userData['first_name'] ?? userData['name']?.split(' ')[0] ?? 'User';
+  }
+
   Future<Map<String, dynamic>?> _verifyAndGetUserData(String token) async {
     try {
-      print('Verifying token with backend...');
-
-      print('=== PROFILE VERIFICATION REQUEST ===');
-      print('URL: $baseUrl/user/profile');
-      print('Headers: ${{
-        'Authorization': 'Bearer ${token.substring(0, 20)}...',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      }}');
-      print('=== END REQUEST ===');
-
       final response = await http.get(
         Uri.parse('$baseUrl/user/profile'),
         headers: {
           'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
+          ..._getDefaultHeaders(),
         },
-      );
-
-      print('=== PROFILE VERIFICATION RESPONSE ===');
-      print('Status Code: ${response.statusCode}');
-      print('Headers: ${response.headers}');
-      print('Body: ${response.body}');
-      print('=== END RESPONSE ===');
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        if (responseData['success'] == true) {
-          return responseData['data'];
-        } else {
-          return responseData;
-        }
+        return responseData['success'] == true
+            ? responseData['data']
+            : responseData;
       } else if (response.statusCode == 401) {
         throw Exception('Invalid token received');
-      } else {
-        print('Failed to verify token, but proceeding anyway');
-        return {}; // Return empty map if profile fetch fails
       }
+
+      return {};
     } catch (e) {
-      print('Error verifying token: $e');
-      // For non-401 errors, return empty data and let login proceed
-      if (e.toString().contains('Invalid token')) {
-        rethrow;
-      }
+      print('⚠️ Error verifying token: $e');
+      if (e.toString().contains('Invalid token')) rethrow;
       return {};
     }
   }
@@ -418,78 +426,114 @@ class FaceBookAuthService {
       String token, Map<String, dynamic> userData) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final userInfo = _mapUserData(userData);
 
-      // Store in the format matching your _saveUserData method
-      await prefs.setString('id', userData['id']?.toString() ?? '');
-      await prefs.setString('email', userData['email'] ?? '');
-      await prefs.setString('firstName',
-          userData['first_name'] ?? userData['name']?.split(' ')[0] ?? '');
-      await prefs.setString(
-          'lastName',
-          userData['last_name'] ??
-              (userData['name']?.split(' ').length > 1
-                  ? userData['name'].split(' ').sublist(1).join(' ')
-                  : ''));
-      await prefs.setString('gender', userData['gender'] ?? '');
-      await prefs.setString('phone', userData['phone'] ?? '');
-      await prefs.setString('address', userData['address'] ?? '');
-      await prefs.setString('image',
-          userData['profile_image'] ?? userData['picture']?.toString() ?? '');
-      await prefs.setString('token', token);
-      await prefs.setBool('isFirstTime', false);
+      // Store individual fields
+      await Future.wait([
+        prefs.setString('id', userInfo['id']!),
+        prefs.setString('email', userInfo['email']!),
+        prefs.setString('firstName', userInfo['firstName']!),
+        prefs.setString('lastName', userInfo['lastName']!),
+        prefs.setString('gender', userInfo['gender']!),
+        prefs.setString('phone', userInfo['phone']!),
+        prefs.setString('address', userInfo['address']!),
+        prefs.setString('image', userInfo['image']!),
+        prefs.setString('token', token),
+        prefs.setBool('isFirstTime', false),
+        prefs.setBool('is_logged_in', true),
+        prefs.setString('user_data', json.encode(userData)),
+      ]);
 
-      // Also store the complete user data as JSON for backward compatibility
-      await prefs.setString('user_data', json.encode(userData));
-      await prefs.setBool('is_logged_in', true);
-
-      print('=== STORED USER DATA ===');
-      print('ID: ${userData['id']?.toString() ?? ''}');
-      print('Email: ${userData['email'] ?? ''}');
-      print(
-          'First Name: ${userData['first_name'] ?? userData['name']?.split(' ')[0] ?? ''}');
-      print(
-          'Last Name: ${userData['last_name'] ?? (userData['name']?.split(' ').length > 1 ? userData['name'].split(' ').sublist(1).join(' ') : '')}');
-      print('Gender: ${userData['gender'] ?? ''}');
-      print('Phone: ${userData['phone'] ?? ''}');
-      print('Address: ${userData['address'] ?? ''}');
-      print(
-          'Profile Image: ${userData['profile_image'] ?? userData['picture']?.toString() ?? ''}');
-      print('Token: ${token.substring(0, 20)}...');
-      print('Is First Time: false');
-      print('Is Logged In: true');
-      print('=== END STORED DATA ===');
+      print('💾 User data stored successfully');
     } catch (e) {
-      print('Error storing auth data: $e');
+      print('❌ Error storing auth data: $e');
       rethrow;
     }
   }
 
-  // Check for initial deep link when app starts
-  Future<void> checkInitialLink(BuildContext context) async {
+  Map<String, String> _mapUserData(Map<String, dynamic> userData) {
+    final name = userData['name']?.toString() ?? '';
+    final nameParts = name.split(' ');
+
+    return {
+      'id': userData['id']?.toString() ?? '',
+      'email': userData['email'] ?? '',
+      'firstName': userData['first_name'] ??
+          userData['given_name'] ??
+          (nameParts.isNotEmpty ? nameParts.first : ''),
+      'lastName': userData['last_name'] ??
+          userData['family_name'] ??
+          (nameParts.length > 1 ? nameParts.sublist(1).join(' ') : ''),
+      'gender': userData['gender'] ?? '',
+      'phone': userData['phone'] ?? '',
+      'address': userData['address'] ?? '',
+      'image': userData['profile_image'] ??
+          userData['picture'] ??
+          userData['avatar'] ??
+          '',
+    };
+  }
+
+  Future<void> _handleBase64EncodedResponse(String encodedData) async {
     try {
-      print('Checking for initial deep link...');
+      final decodedBytes = base64Decode(encodedData);
+      final decodedString = utf8.decode(decodedBytes);
+      final responseData = json.decode(decodedString);
 
-      if (_appLinks == null) {
-        print('AppLinks not initialized, cannot check initial link');
-        return;
-      }
+      final token = responseData['token'];
+      final userData = responseData['user'];
 
-      final uri = await _appLinks!.getInitialLink();
-      if (uri != null) {
-        print('Initial deep link found: $uri');
-        _context = context;
-        _isProcessing = true;
-        await _handleDeepLink(uri);
+      if (token?.toString().isNotEmpty ?? false) {
+        await _handleSuccessfulAuth(token.toString(), userData ?? {});
       } else {
-        print('No initial deep link found');
+        throw Exception('No valid token found in decoded response');
       }
     } catch (e) {
-      print('Error checking initial link: $e');
+      print('❌ Error decoding base64 response: $e');
+      _showErrorMessage(_context!, 'Failed to process authentication response');
+      _cleanup();
     }
   }
 
+  // Utility methods
+  Map<String, String> _getDefaultHeaders() {
+    return {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+  }
+
+  void _logResponse(String operation, http.Response response) {
+    print('=== $operation RESPONSE ===');
+    print('Status Code: ${response.statusCode}');
+    print('Body: ${response.body}');
+    print('=== END $operation RESPONSE ===');
+  }
+
+  void _logDeepLink(Uri uri) {
+    print('=== DEEP LINK RECEIVED ===');
+    print('Full URI: $uri');
+    print('Scheme: ${uri.scheme}');
+    print('Host: ${uri.host}');
+    print('Path: ${uri.path}');
+    print('Query Parameters: ${uri.queryParameters}');
+    print('=== END DEEP LINK INFO ===');
+  }
+
+  String _getReadableErrorMessage(dynamic error) {
+    final errorStr = error.toString();
+    if (errorStr.contains('SocketException')) {
+      return 'Network connection error. Please check your internet connection.';
+    } else if (errorStr.contains('TimeoutException')) {
+      return 'Request timed out. Please try again.';
+    } else if (errorStr.contains('FormatException')) {
+      return 'Invalid response format from server.';
+    }
+    return errorStr.replaceAll('Exception: ', '');
+  }
+
   void _cleanup() {
-    print('Cleaning up FaceBookAuthService...');
+    print('🧹 Cleaning up FaceBookAuthService...');
     _timeoutTimer?.cancel();
     _linkSubscription?.cancel();
     _linkSubscription = null;
@@ -497,124 +541,29 @@ class FaceBookAuthService {
     _isProcessing = false;
   }
 
-  // Handle base64 encoded response data from PHP backend
-  Future<void> _handleBase64EncodedResponse(
-      String encodedData, Map<String, dynamic> queryParams) async {
-    try {
-      print('=== DECODING BASE64 RESPONSE ===');
-      print('Encoded Data: $encodedData');
-
-      // Decode base64
-      final decodedBytes = base64Decode(encodedData);
-      final decodedString = utf8.decode(decodedBytes);
-
-      print('Decoded String: $decodedString');
-
-      // Parse JSON
-      final responseData = json.decode(decodedString);
-
-      print('=== DECODED RESPONSE DATA ===');
-      print('Full Response: ${json.encode(responseData)}');
-      print('Has User: ${responseData.containsKey('user')}');
-      print('Has Token: ${responseData.containsKey('token')}');
-      print('Has Message: ${responseData.containsKey('message')}');
-
-      if (responseData['user'] != null) {
-        print('User Data: ${json.encode(responseData['user'])}');
-      }
-
-      if (responseData['token'] != null) {
-        print('Token: ${responseData['token'].toString().substring(0, 50)}...');
-      }
-
-      print('Provider: ${queryParams['provider'] ?? 'facebook'}');
-      print('=== END DECODED DATA ===');
-
-      // Extract token and user data
-      final token = responseData['token'];
-      final userData = responseData['user'];
-
-      if (token != null && token.toString().isNotEmpty) {
-        // Handle successful authentication with the decoded data
-        await _handleSuccessfulAuthFromResponse(
-            token.toString(), userData ?? {});
-      } else {
-        throw Exception('No valid token found in decoded response');
-      }
-    } catch (e) {
-      print('Error decoding base64 response: $e');
-      _showErrorMessage(_context!,
-          'Failed to process authentication response: ${e.toString()}');
-      _cleanup();
-    }
-  }
-
-  // Handle successful auth when we already have user data from backend
-  Future<void> _handleSuccessfulAuthFromResponse(
-      String token, Map<String, dynamic> userData) async {
-    try {
-      print('=== HANDLING AUTH FROM DECODED RESPONSE ===');
-      print('Token: ${token.substring(0, 20)}...');
-      print('User Data: ${json.encode(userData)}');
-
-      _showLoadingMessage(_context!, 'Completing login...');
-
-      // Store authentication data directly (no need to verify since it came from backend)
-      await _storeAuthData(token, userData);
-      print('=== AUTH DATA STORAGE FROM RESPONSE ===');
-      print('Token stored: ${token.substring(0, 20)}...');
-      print('User data stored: ${json.encode(userData)}');
-      print('=== END STORAGE INFO ===');
-
-      // Send FCM token if context is still valid
-      if (_context != null && _context!.mounted) {
-        try {
-          BlocProvider.of<SendFcmTokenCubit>(_context!).sendToken();
-          print('FCM token sent');
-        } catch (e) {
-          print('Error sending FCM token (non-critical): $e');
-        }
-      }
-
-      // Navigate to home screen
-      if (_context != null && _context!.mounted) {
-        Navigator.pushAndRemoveUntil(
-          _context!,
-          MaterialPageRoute(builder: (context) => const NavView()),
-          (route) => false,
-        );
-        print('Navigated to NavView');
-
-        final userName =
-            userData['first_name'] ?? userData['name']?.split(' ')[0] ?? 'User';
-        _showSuccessMessage(
-            _context!, 'Login successful! Welcome back, $userName.');
-      }
-
-      print('=== AUTH FROM RESPONSE SUCCESS COMPLETE ===');
-    } catch (e) {
-      print('Error in _handleSuccessfulAuthFromResponse: $e');
-      _showErrorMessage(_context!, 'Authentication failed: ${e.toString()}');
-    } finally {
-      _cleanup();
-    }
-  }
-
+  // UI feedback methods with improved UX
   void _showErrorMessage(BuildContext context, String message) {
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.shade600,
         content: Row(
           children: [
-            const Icon(Icons.error, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(child: Text(message)),
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
           ],
         ),
-        duration: const Duration(seconds: 4),
+        duration: const Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
           label: 'Dismiss',
           textColor: Colors.white,
@@ -630,15 +579,22 @@ class FaceBookAuthService {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.green.shade600,
         content: Row(
           children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(message),
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
           ],
         ),
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -649,29 +605,52 @@ class FaceBookAuthService {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blue.shade600,
         content: Row(
           children: [
             const SizedBox(
-              width: 16,
-              height: 16,
+              width: 18,
+              height: 18,
               child: CircularProgressIndicator(
-                strokeWidth: 2,
+                strokeWidth: 2.5,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ),
             const SizedBox(width: 16),
-            Expanded(child: Text(message)),
+            Expanded(
+              child: Text(
+                message,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
           ],
         ),
-        duration: const Duration(seconds: 8),
+        duration: const Duration(seconds: 10),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
-  // Clean up resources
+  // Public methods
+  Future<void> checkInitialLink(BuildContext context) async {
+    try {
+      if (_appLinks == null) return;
+
+      final uri = await _appLinks!.getInitialLink();
+      if (uri != null) {
+        print('🔗 Initial deep link found: $uri');
+        _context = context;
+        _isProcessing = true;
+        await _handleDeepLink(uri);
+      }
+    } catch (e) {
+      print('❌ Error checking initial link: $e');
+    }
+  }
+
   void dispose() {
-    print('Disposing FaceBookAuthService...');
+    print('🗑️ Disposing FaceBookAuthService...');
     _cleanup();
   }
 }

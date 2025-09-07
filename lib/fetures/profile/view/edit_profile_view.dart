@@ -84,7 +84,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     padding: const EdgeInsets.all(16.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xffE5F1F7),
+                        color: const Color(0xFFD6E4F5),
                         boxShadow: Details.boxShadowList,
                         borderRadius: BorderRadius.circular(8),
                       ),

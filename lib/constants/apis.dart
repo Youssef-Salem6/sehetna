@@ -27,6 +27,7 @@ String updateProfileApi = "$userBase/update-profile";
 String updateProfileImageApi = "$userBase/update-profile-image";
 String updatePasswordApi = "$userBase/update-password";
 String getOngoingRequestsApi = "$userBase/ongoing-requests";
+String deleteAccountApi = "$userBase/delete-account";
 
 // Categories
 String getAllCategoriesApi = "$baseUrl/categories";

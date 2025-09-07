@@ -181,5 +181,9 @@
     "addService" : "Add Service",
     "requestServices" : "Request Services",
     "services": "Services",
-    "noservices": "No services available"
+    "noservices": "No services available",
+    "deleteAccount" : "Delete Account",
+    "deleteDialog" : "Are you sure you want to delete your account? This action cannot be undone.",
+    "no" : "No",
+    "yse" : "Yes"
 }

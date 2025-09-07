@@ -16,23 +16,28 @@ class AppointmentDetailsRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SvgPicture.asset(
-            image,
-            width: 20,
+          Row(
+            children: [
+              SvgPicture.asset(
+                image,
+                width: 20,
+              ),
+              const Gap(8),
+              Text(
+                title,
+                style: const TextStyle(
+                    color: kPrimaryColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
-          const Gap(8),
-          Text(
-            title,
-            style: const TextStyle(
-                color: kPrimaryColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w700),
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Spacer(),
+          // const Spacer(),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6,
+            width: MediaQuery.of(context).size.width * 0.5,
             child: Text(
               textDirection: TextDirection.rtl,
               overflow: TextOverflow.ellipsis,

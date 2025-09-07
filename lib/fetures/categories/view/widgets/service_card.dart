@@ -35,14 +35,14 @@ class _ServiceCardState extends State<ServiceCard> {
                 id: widget.serviceModel.id!,
                 price: double.parse(widget.serviceModel.price!),
               );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ServiceView(serviceModel: widget.serviceModel),
-                ),
-              );
             }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ServiceView(serviceModel: widget.serviceModel),
+              ),
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),

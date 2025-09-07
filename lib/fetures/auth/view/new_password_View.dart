@@ -68,9 +68,9 @@ class _NewPasswordViewState extends State<NewPasswordView> {
                     gradient: RadialGradient(
                       center: Alignment.center, // Center the gradient
                       colors: [
-                        Color(0xff3499c5),
-                        Color(0xff256c8b),
-                        Color(0xff194a5f),
+                        Color(0xff015CCC),
+                        Color.fromARGB(255, 0, 86, 157),
+                        Color(0xff004075),
                       ],
                       stops: [
                         0.1,

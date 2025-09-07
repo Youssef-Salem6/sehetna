@@ -208,7 +208,8 @@ class _AppointmentDetailsViewState extends State<AppointmentDetailsView> {
 
                                   // Appointment Details Rows
                                   AppointmentDetailsRow(
-                                    image: "assets/images/Icons/callender.svg",
+                                    image:
+                                        "assets/images/Icons/fluent_calendar-date-20-filled.svg",
                                     title: S.of(context).date,
                                     value: DateFormat('MMMM d, h:mm a').format(
                                         DateTime.parse(

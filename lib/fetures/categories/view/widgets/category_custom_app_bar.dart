@@ -6,7 +6,9 @@ import 'package:sehetna/fetures/categories/manager/servicesList/services_list_cu
 
 class CategoryCustomAppBar extends StatelessWidget {
   final String categoryName;
-  const CategoryCustomAppBar({super.key, required this.categoryName});
+  final bool isNeeded;
+  const CategoryCustomAppBar(
+      {super.key, required this.categoryName, required this.isNeeded});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,8 @@ class CategoryCustomAppBar extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () {
-                    BlocProvider.of<ServicesListCubit>(context).clearList();
+                    if (isNeeded) {
+                    }
                     Navigator.pop(context);
                   },
                   icon: const Icon(

@@ -108,7 +108,7 @@ class _LocationContainerState extends State<LocationContainer>
                 duration: const Duration(milliseconds: 250),
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xffE5F1F7),
+                  color: const Color(0xFFD6E4F5),
                   boxShadow: Details.boxShadowList,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -126,7 +126,7 @@ class _LocationContainerState extends State<LocationContainer>
                         Row(
                           children: [
                             SvgPicture.asset(
-                                "assets/images/Icons/location.svg"),
+                                "assets/images/Icons/iconamoon_location-fill.svg"),
                             const Gap(16),
                             Text(
                               S.of(context).address,

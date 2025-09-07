@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sehetna/const.dart';
 import 'package:sehetna/fetures/categories/manager/cancelRequest/cancel_request_cubit.dart';
 import 'dart:math';
 import 'dart:async';
@@ -27,8 +28,8 @@ class ServiceWaitingView extends StatefulWidget {
 class _ServiceWaitingViewState extends State<ServiceWaitingView>
     with SingleTickerProviderStateMixin {
   // Main color variables
-  static const Color mainColor = Color(0xFF5EAAD6);
-  static const Color darkMainColor = Color(0xFF4A8DB5);
+  static Color mainColor = kPrimaryColor;
+  static Color darkMainColor = kSecondaryColor;
   static const Color lightMainColor = Color(0xFF7EBFE6);
   static const Color backgroundColor = Color(0xFF0A1E3C);
 

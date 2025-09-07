@@ -37,6 +37,7 @@ class _CategoriesViewState extends State<CategoriesView> {
             ListView(
               children: [
                 CategoryCustomAppBar(
+                  isNeeded: true,
                   categoryName: widget.categoryName,
                 ),
                 const Gap(10),

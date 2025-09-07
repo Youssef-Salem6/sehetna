@@ -148,6 +148,19 @@ class S {
     return Intl.message('UserName', name: 'userName', desc: '', args: []);
   }
 
+  String get deleteDialog {
+    return Intl.message(
+        '"Are you sure you want to delete your account? This action cannot be undone."',
+        name: 'deleteDialog',
+        desc: '',
+        args: []);
+  }
+
+  String get deleteAccount {
+    return Intl.message('Delete account',
+        name: 'deleteAccount', desc: '', args: []);
+  }
+
   /// `Please enter your email`
   String get embtyEmailWarning {
     return Intl.message(
@@ -321,6 +334,14 @@ class S {
   /// `Email`
   String get email {
     return Intl.message('Email', name: 'email', desc: '', args: []);
+  }
+
+  String get no {
+    return Intl.message('No', name: 'mo', desc: '', args: []);
+  }
+
+  String get yes {
+    return Intl.message('Yes', name: 'yes', desc: '', args: []);
   }
 
   /// `or signup with`
