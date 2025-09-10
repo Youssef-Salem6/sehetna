@@ -176,8 +176,14 @@
     "additionalInfo": "معلومات إضافية",
     "additionalNote": "ملاحظة إضافية",
     "addnote": "إضافة ملاحظة (اختياري)",
-    "emptyRequests" : "لا يوجد طلبات بعد",
-    "emptyOngoingRequests" : "لا يوجد طلبات جاريه",
-    "deleteAccount" : "حذف الحساب",
-    "deleteDialog" : "هل انت متأكد من انك تريد مسح حسابك؟ هذا الفعل لا يمكن الرجوع فيه"
+    "emptyRequests": "لا يوجد طلبات بعد",
+    "emptyOngoingRequests": "لا يوجد طلبات جاريه",
+    "deleteAccount": "حذف الحساب",
+    "deleteDialog": "هل انت متأكد من انك تريد مسح حسابك؟ هذا الفعل لا يمكن الرجوع فيه",
+    "save": "حفظ",
+    "requestReview": "مراجعه الطلب",
+    "paymentConfirmation": "تأكيد الدفع",
+    "totalCost": "مجموع التكلفه",
+    "paymentDes": "هل تود المتابعه مع هذه التكلفه ؟",
+    "confirm": "تأكيد"
 }

@@ -22,14 +22,12 @@ class SendFcmTokenCubit extends Cubit<SendFcmTokenState> {
       );
       if (response.statusCode == 200) {
         emit(SendFcmTokenSuccess());
-        print("token sent successfully");
       } else if (response.statusCode == 400) {
         emit(SendFcmTokenFailure());
       } else {
         emit(SendFcmTokenFailure());
       }
     } catch (e) {
-      print(e);
     }
   }
 }

@@ -18,7 +18,6 @@ class AppointmentDetailsCubit extends Cubit<AppointmentDetailsState> {
         data = jsonDecode(response.body)["data"];
         emit(AppointmentDetailsSuccess());
       } else {
-        print(jsonDecode(response.body)["message"]);
         emit(AppointmentDetailsFailure(
             error: jsonDecode(response.body)["message"]));
       }

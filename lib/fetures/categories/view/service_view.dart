@@ -13,7 +13,9 @@ import 'package:sehetna/generated/l10n.dart';
 
 class ServiceView extends StatefulWidget {
   final ServiceModel serviceModel;
-  const ServiceView({super.key, required this.serviceModel});
+  final bool isMultiable;
+  const ServiceView(
+      {super.key, required this.serviceModel, required this.isMultiable});
 
   @override
   State<ServiceView> createState() => _ServiceViewState();
@@ -97,46 +99,50 @@ class _ServiceViewState extends State<ServiceView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BlocProvider(
-                                  create: (context) => CreateServiceCubit(),
-                                  child: RequestDataView(
-                                    selectedServices:
-                                        BlocProvider.of<ServicesListCubit>(
-                                                context)
-                                            .selectedServices,
-                                    requirements:
-                                        widget.serviceModel.requirements!,
+                  child: Visibility(
+                    visible: widget.isMultiable,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BlocProvider(
+                                    create: (context) => CreateServiceCubit(),
+                                    child: RequestDataView(
+                                      selectedServices:
+                                          BlocProvider.of<ServicesListCubit>(
+                                                  context)
+                                              .selectedServices,
+                                      requirements:
+                                          widget.serviceModel.requirements!,
+                                    ),
                                   ),
                                 ),
+                              );
+                            },
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    const WidgetStatePropertyAll(kPrimaryColor),
+                                foregroundColor:
+                                    const WidgetStatePropertyAll(Colors.white),
+                                shape: WidgetStatePropertyAll<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8)))),
+                            child: Text(
+                              S.of(context).makeRequest,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
                               ),
-                            );
-                          },
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  const WidgetStatePropertyAll(kPrimaryColor),
-                              foregroundColor:
-                                  const WidgetStatePropertyAll(Colors.white),
-                              shape: WidgetStatePropertyAll<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)))),
-                          child: Text(
-                            S.of(context).makeRequest,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -25,7 +25,6 @@ class UpdateProfileCubit extends Cubit<UpdateProfileState> {
         emit(UpdateProfileFailure(error: jsonDecode(response.body)["message"]));
       }
     } catch (e) {
-      print(e);
       emit(UpdateProfileFailure(error: "unexpected error"));
     }
   }

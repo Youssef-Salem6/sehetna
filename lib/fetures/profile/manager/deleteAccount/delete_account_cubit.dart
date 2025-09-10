@@ -13,10 +13,8 @@ class DeleteAccountCubit extends Cubit<DeleteAccountState> {
     emit(DeleteAccountLoading());
     Uri url = Uri.parse(deleteAccountApi);
     var response = await http.post(url, headers: header);
-    print(response.body);
     if (response.statusCode == 200) {
       emit(DeleteAccountSuccess());
-      print(response.body);
     } else {
       emit(DeleteAccountFailure(message: jsonDecode(response.body)["message"]));
     }

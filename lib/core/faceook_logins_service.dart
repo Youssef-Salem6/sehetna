@@ -31,10 +31,8 @@ class FaceBookAuthService {
   Future<void> _initializeAppLinks() async {
     try {
       _appLinks = AppLinks();
-      print('✅ AppLinks initialized successfully');
       await _checkInitialLink();
     } catch (e) {
-      print('❌ Error initializing AppLinks: $e');
       _appLinks = null;
     }
   }
@@ -45,28 +43,22 @@ class FaceBookAuthService {
 
       final uri = await _appLinks!.getInitialLink();
       if (uri != null) {
-        print('🔗 Initial deep link found: $uri');
         if (_isProcessing) {
           await _handleDeepLink(uri);
         }
       }
-    } catch (e) {
-      print('❌ Error checking initial link: $e');
-    }
+    } catch (e) {}
   }
 
   /// Main entry point for Facebook authentication
   Future<void> initiateFacebookLogin(BuildContext context) async {
     if (_isProcessing) {
-      print('⚠️ Facebook login already in progress, ignoring request');
       return;
     }
 
     try {
       _isProcessing = true;
       _context = context;
-
-      print('🚀 Starting Facebook login process...');
 
       // Preparation steps
       await _clearPreviousAuthState();
@@ -82,7 +74,6 @@ class FaceBookAuthService {
       _showLoadingMessage(context, 'Opening Facebook for authentication...');
       await _launchFacebookAuth(authUrl!);
     } catch (e) {
-      print('❌ Error in initiateFacebookLogin: $e');
       _showErrorMessage(
           context, 'Facebook login failed: ${_getReadableErrorMessage(e)}');
       _cleanup();
@@ -107,7 +98,6 @@ class FaceBookAuthService {
       final responseData = json.decode(response.body);
       return _extractAuthUrl(responseData);
     } catch (e) {
-      print('❌ Error getting Facebook auth URL: $e');
       rethrow;
     }
   }
@@ -140,14 +130,12 @@ class FaceBookAuthService {
       }
 
       if (launched) {
-        print('✅ Successfully launched Facebook auth URL');
         _showLoadingMessage(_context!,
             'Complete authentication in Facebook and return to the app...');
       } else {
         throw Exception('Could not launch Facebook authentication');
       }
     } catch (e) {
-      print('❌ Error launching Facebook auth: $e');
       throw Exception('Failed to open Facebook login: ${e.toString()}');
     }
   }
@@ -181,15 +169,12 @@ class FaceBookAuthService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('temp_auth_state');
-    } catch (e) {
-      print('⚠️ Error clearing previous auth state: $e');
-    }
+    } catch (e) {}
   }
 
   void _setupTimeout() {
     _timeoutTimer?.cancel();
     _timeoutTimer = Timer(_authTimeout, () {
-      print('⏰ Authentication timeout reached');
       if (_context?.mounted ?? false) {
         _showErrorMessage(
             _context!, 'Authentication timed out. Please try again.');
@@ -199,7 +184,6 @@ class FaceBookAuthService {
   }
 
   Future<void> _startListeningForDeepLinks() async {
-    print('👂 Starting to listen for deep links...');
     _linkSubscription?.cancel();
 
     if (_appLinks == null) {
@@ -208,13 +192,11 @@ class FaceBookAuthService {
 
     _linkSubscription = _appLinks!.uriLinkStream.listen(
       (uri) {
-        print('🔗 Deep link received: $uri');
         if (_isProcessing) {
           _handleDeepLink(uri);
         }
       },
       onError: (err) {
-        print('❌ Deep link error: $err');
         if (_context?.mounted ?? false) {
           _showErrorMessage(_context!, 'Deep link error: $err');
         }
@@ -225,7 +207,6 @@ class FaceBookAuthService {
 
   Future<void> _handleDeepLink(Uri uri) async {
     if (!_isProcessing || _context?.mounted != true) {
-      print('⚠️ Not processing auth or context invalid, ignoring deep link');
       return;
     }
 
@@ -267,8 +248,6 @@ class FaceBookAuthService {
     final error = queryParams['error'] ?? 'Unknown error';
     final errorDescription = queryParams['error_description'] ?? '';
 
-    print('❌ Error in auth callback: $error - $errorDescription');
-
     final userMessage = _getUserFriendlyErrorMessage(error, errorDescription);
     _showErrorMessage(_context!, userMessage);
     _cleanup();
@@ -289,13 +268,11 @@ class FaceBookAuthService {
   }
 
   Future<void> _handleDirectToken(String token) async {
-    print('🎟️ Direct token received');
     await _handleSuccessfulAuth(token, {});
   }
 
   Future<void> _exchangeCodeForToken(String code) async {
     try {
-      print('🔄 Exchanging authorization code for token...');
       _showLoadingMessage(_context!, 'Processing authentication...');
 
       final response = await http
@@ -323,7 +300,6 @@ class FaceBookAuthService {
             errorData['message'] ?? 'Server error: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error exchanging code for token: $e');
       _showErrorMessage(_context!,
           'Failed to complete authentication: ${_getReadableErrorMessage(e)}');
       _cleanup();
@@ -349,7 +325,6 @@ class FaceBookAuthService {
   Future<void> _handleSuccessfulAuth(
       String token, Map<String, dynamic> extraData) async {
     try {
-      print('✅ Handling successful authentication');
       _showLoadingMessage(_context!, 'Completing login...');
 
       final userData = await _verifyAndGetUserData(token) ?? extraData;
@@ -358,7 +333,6 @@ class FaceBookAuthService {
       await _sendFcmToken();
       await _navigateToHome(userData);
     } catch (e) {
-      print('❌ Error in successful auth handler: $e');
       _showErrorMessage(
           _context!, 'Authentication failed: ${_getReadableErrorMessage(e)}');
     } finally {
@@ -370,10 +344,7 @@ class FaceBookAuthService {
     if (_context?.mounted ?? false) {
       try {
         BlocProvider.of<SendFcmTokenCubit>(_context!).sendToken();
-        print('📱 FCM token sent');
-      } catch (e) {
-        print('⚠️ Error sending FCM token (non-critical): $e');
-      }
+      } catch (e) {}
     }
   }
 
@@ -416,7 +387,6 @@ class FaceBookAuthService {
 
       return {};
     } catch (e) {
-      print('⚠️ Error verifying token: $e');
       if (e.toString().contains('Invalid token')) rethrow;
       return {};
     }
@@ -443,10 +413,7 @@ class FaceBookAuthService {
         prefs.setBool('is_logged_in', true),
         prefs.setString('user_data', json.encode(userData)),
       ]);
-
-      print('💾 User data stored successfully');
     } catch (e) {
-      print('❌ Error storing auth data: $e');
       rethrow;
     }
   }
@@ -489,7 +456,6 @@ class FaceBookAuthService {
         throw Exception('No valid token found in decoded response');
       }
     } catch (e) {
-      print('❌ Error decoding base64 response: $e');
       _showErrorMessage(_context!, 'Failed to process authentication response');
       _cleanup();
     }
@@ -503,22 +469,9 @@ class FaceBookAuthService {
     };
   }
 
-  void _logResponse(String operation, http.Response response) {
-    print('=== $operation RESPONSE ===');
-    print('Status Code: ${response.statusCode}');
-    print('Body: ${response.body}');
-    print('=== END $operation RESPONSE ===');
-  }
+  void _logResponse(String operation, http.Response response) {}
 
-  void _logDeepLink(Uri uri) {
-    print('=== DEEP LINK RECEIVED ===');
-    print('Full URI: $uri');
-    print('Scheme: ${uri.scheme}');
-    print('Host: ${uri.host}');
-    print('Path: ${uri.path}');
-    print('Query Parameters: ${uri.queryParameters}');
-    print('=== END DEEP LINK INFO ===');
-  }
+  void _logDeepLink(Uri uri) {}
 
   String _getReadableErrorMessage(dynamic error) {
     final errorStr = error.toString();
@@ -533,7 +486,6 @@ class FaceBookAuthService {
   }
 
   void _cleanup() {
-    print('🧹 Cleaning up FaceBookAuthService...');
     _timeoutTimer?.cancel();
     _linkSubscription?.cancel();
     _linkSubscription = null;
@@ -639,18 +591,14 @@ class FaceBookAuthService {
 
       final uri = await _appLinks!.getInitialLink();
       if (uri != null) {
-        print('🔗 Initial deep link found: $uri');
         _context = context;
         _isProcessing = true;
         await _handleDeepLink(uri);
       }
-    } catch (e) {
-      print('❌ Error checking initial link: $e');
-    }
+    } catch (e) {}
   }
 
   void dispose() {
-    print('🗑️ Disposing FaceBookAuthService...');
     _cleanup();
   }
 }

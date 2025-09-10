@@ -25,14 +25,12 @@ class UpdateLocationCubit extends Cubit<UpdateLocationState> {
       );
       if (response.statusCode == 200) {
         emit(UpdateLocationSuccess());
-        print("Location updated successfully");
       } else if (response.statusCode == 401) {
         emit(UpdateLocationFailure());
       } else {
         emit(UpdateLocationFailure());
       }
     } catch (e) {
-      print(e);
     }
   }
 }

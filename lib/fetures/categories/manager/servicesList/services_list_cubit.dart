@@ -12,21 +12,17 @@ class ServicesListCubit extends Cubit<ServicesListState> {
   addServiceToList({required String id, required double price}) {
     selectedServices.add(id);
     cost += price;
-    print(selectedServices);
-    print(cost);
   }
 
   removeServiceFromList({required String id, required double price}) {
     cost -= price;
     selectedServices.remove(id);
-    print(selectedServices);
-    print(cost);
+
   }
 
   clearList() {
     selectedServices.clear();
     cost = 0;
-    print(selectedServices);
-    print(cost);
+
   }
 }

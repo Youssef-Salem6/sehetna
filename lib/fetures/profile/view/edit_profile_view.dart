@@ -120,16 +120,17 @@ class _EditProfileViewState extends State<EditProfileView> {
                               title: S.of(context).email,
                             ),
                             const Gap(8),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Gender",
-                                style: TextStyle(
-                                  color: Colors.black.withOpacity(0.3),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
+                            Row(
+                              children: [
+                                Text(
+                                  S.of(context).gender,
+                                  style: TextStyle(
+                                    color: Colors.black.withOpacity(0.3),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                             const Gap(8),
                             Row(
@@ -242,18 +243,18 @@ class _EditProfileViewState extends State<EditProfileView> {
                           ? Shimmer.fromColors(
                               baseColor: Colors.white.withOpacity(0.6),
                               highlightColor: Colors.white,
-                              child: const Text(
-                                "Save",
-                                style: TextStyle(
+                              child: Text(
+                                S.of(context).save,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                             )
-                          : const Text(
-                              "Save",
-                              style: TextStyle(
+                          : Text(
+                              S.of(context).save,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,

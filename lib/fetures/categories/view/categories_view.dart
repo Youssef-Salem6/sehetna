@@ -6,6 +6,7 @@ import 'package:sehetna/fetures/categories/manager/servicesList/services_list_cu
 import 'package:sehetna/fetures/categories/view/widgets/category_body_view.dart';
 import 'package:sehetna/fetures/categories/view/widgets/category_custom_app_bar.dart';
 import 'package:sehetna/fetures/categories/view/widgets/cost_dialog.dart';
+import 'package:sehetna/generated/l10n.dart';
 
 class CategoriesView extends StatefulWidget {
   final String categoryId;
@@ -79,9 +80,9 @@ class _CategoriesViewState extends State<CategoriesView> {
                         );
                       }
                     },
-                    child: const Text(
-                      'CheckOut',
-                      style: TextStyle(
+                    child: Text(
+                      S.of(context).requestReview,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,

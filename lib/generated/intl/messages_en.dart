@@ -217,6 +217,14 @@ class MessageLookup extends MessageLookupByLibrary {
           "Language changed successfully",
         ),
         "lastName": MessageLookupByLibrary.simpleMessage("Last Name"),
+        "requestReview": MessageLookupByLibrary.simpleMessage("Request Review"),
+        "paymentConfirmation":
+            MessageLookupByLibrary.simpleMessage("Payment Confirmation"),
+        "totalCost": MessageLookupByLibrary.simpleMessage("Total Cost"),
+        "paymentDes": MessageLookupByLibrary.simpleMessage(
+            "Do you want to proceed with this Cost?"),
+        "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "save": MessageLookupByLibrary.simpleMessage("Save"),
         "location": MessageLookupByLibrary.simpleMessage("Location"),
         "login": MessageLookupByLibrary.simpleMessage("Login"),
         "loginTitle": MessageLookupByLibrary.simpleMessage("Welcome Back"),

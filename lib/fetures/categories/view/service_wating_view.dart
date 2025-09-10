@@ -52,12 +52,9 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
   @override
   void initState() {
     super.initState();
-    debugPrint('🚀 INIT ServiceWaitingView for request: ${widget.requestId}');
 
     // Initialize Firestore stream
-    final docPath =
-        'customer_requests/${widget.customerId}/updates/accepted_${widget.requestId}';
-    debugPrint('🔥 Firestore path: $docPath');
+
 
     _requestStream = _firestore
         .collection('customer_requests')
@@ -66,7 +63,6 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
         .doc('accepted_${widget.requestId}')
         .snapshots()
         .handleError((error) {
-      debugPrint('❌ Firestore error: $error');
     });
 
     // Animation setup
@@ -129,7 +125,6 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
 
   @override
   void dispose() {
-    debugPrint('♻️ DISPOSING ServiceWaitingView');
     _isDisposed = true;
     _controller.dispose();
     _typingTimer.cancel();
@@ -137,29 +132,24 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
   }
 
   void _handleRequestAccepted(Map<String, dynamic> data) {
-    debugPrint('🎯 REQUEST ACCEPTED DATA: ${data.toString()}');
 
     // Check if navigation has already been initiated to prevent multiple calls
     if (_navigationInitiated) {
-      debugPrint('⛔ Navigation already initiated - skipping duplicate call');
       return;
     }
 
     if (!_isDisposed) {
-      debugPrint('⏳ Scheduling navigation in 500ms...');
 
       try {
         // Parse the provider JSON string to Map
         final providerMap =
             json.decode(data['provider']) as Map<String, dynamic>;
-        debugPrint('✅ Parsed provider data: $providerMap');
 
         // Set flag to prevent multiple navigations
         _navigationInitiated = true;
 
         Future.delayed(const Duration(milliseconds: 500), () {
           if (!_isDisposed && mounted) {
-            debugPrint('➡️ NAVIGATING to RequestAcceptedView');
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -171,13 +161,11 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
               ),
             );
           } else {
-            debugPrint('⛔ Navigation aborted - widget disposed or not mounted');
             // Reset flag if navigation was aborted
             _navigationInitiated = false;
           }
         });
       } catch (e) {
-        debugPrint('❌ Error parsing provider data: $e');
         // Reset flag if there was an error
         _navigationInitiated = false;
         // Show error to user
@@ -186,7 +174,6 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
         );
       }
     } else {
-      debugPrint('⛔ Navigation aborted - widget disposed');
     }
   }
 
@@ -198,38 +185,26 @@ class _ServiceWaitingViewState extends State<ServiceWaitingView>
         child: StreamBuilder<DocumentSnapshot>(
           stream: _requestStream,
           builder: (context, snapshot) {
-            debugPrint(
-                '🔄 StreamBuilder rebuilt - Connection: ${snapshot.connectionState}');
+
 
             if (snapshot.hasError) {
-              debugPrint('❌ Stream error: ${snapshot.error}');
               return _buildErrorUI(snapshot.error.toString());
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              debugPrint('⏳ Waiting for initial data...');
             }
 
             if (snapshot.connectionState == ConnectionState.active) {
-              debugPrint('✅ Stream is active');
               if (snapshot.hasData) {
-                debugPrint('📄 Snapshot has data');
                 if (snapshot.data!.exists) {
-                  debugPrint('📝 Document exists');
                   final data = snapshot.data!.data() as Map<String, dynamic>;
-                  debugPrint('📊 Document data: ${data.toString()}');
 
                   if (data['status'] == 'accepted' && !_navigationInitiated) {
-                    debugPrint('🟢 Accepted status detected!');
                     _handleRequestAccepted(data);
                   } else if (_navigationInitiated) {
-                    debugPrint(
-                        '🔄 Navigation already in progress - skip handling');
                   } else {
-                    debugPrint('🟡 Unexpected status: ${data['status']}');
                   }
                 } else {
-                  debugPrint('📭 Document does not exist yet');
                 }
               }
             }

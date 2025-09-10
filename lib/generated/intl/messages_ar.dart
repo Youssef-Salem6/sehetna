@@ -269,6 +269,14 @@ class MessageLookup extends MessageLookupByLibrary {
           "الرجاء إدخال موضوع",
         ),
         "poor": MessageLookupByLibrary.simpleMessage("ضعيف"),
+        "requestReview": MessageLookupByLibrary.simpleMessage("مراجعه الطلب"),
+        "paymentConfirmation":
+            MessageLookupByLibrary.simpleMessage("تأكيد الدفع"),
+        "totalCost": MessageLookupByLibrary.simpleMessage("مجموع التكلفه"),
+        "paymentDes": MessageLookupByLibrary.simpleMessage(
+            "هل تود المتابعه مع هذه التكلفه ؟"),
+        "confirm": MessageLookupByLibrary.simpleMessage("تأكيد"),
+        "save": MessageLookupByLibrary.simpleMessage("حفظ"),
         "price": MessageLookupByLibrary.simpleMessage("السعر"),
         "profile": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
         "providerDetails": MessageLookupByLibrary.simpleMessage(

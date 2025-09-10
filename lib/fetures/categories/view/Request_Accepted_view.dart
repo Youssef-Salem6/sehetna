@@ -17,8 +17,7 @@ class RequestAcceptedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-        '🏁 RequestAcceptedPage built with provider: ${providerData['name']}');
+
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -116,7 +115,6 @@ class RequestAcceptedView extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    debugPrint('✅ User confirmed provider acceptance');
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const NavView()),

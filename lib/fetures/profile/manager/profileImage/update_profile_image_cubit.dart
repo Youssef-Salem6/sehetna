@@ -49,7 +49,6 @@ class UpdateProfileImageCubit extends Cubit<UpdateProfileImageState> {
           // Update both local SharedPreferences and global pref
           await prefs.setString('profile_image', imageUrl);
           pref.setString('profile_image', imageUrl);
-          print(responseData);
           emit(UpdateProfileImageSuccess(imageUrl: imageUrl));
         } else {
           emit(UpdateProfileImageFailure(error: 'No image URL in response'));

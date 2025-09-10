@@ -565,15 +565,10 @@ class _RequestDataViewState extends State<RequestDataView> {
       return;
     }
 
-    // Debug print all form data before submission
-    print("Final form data:");
     formData.forEach((key, value) {
-      print("$key: $value");
     });
 
-    print("Files to upload:");
     filesToUpload.forEach((key, file) {
-      print("file_$key: ${file.path}");
     });
 
     // Submit the request

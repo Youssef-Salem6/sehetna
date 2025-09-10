@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sehetna/fetures/appointments/manager/appointmentDetails/appointment_details_cubit.dart';
+import 'package:sehetna/generated/l10n.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sehetna/const.dart';
 import 'package:sehetna/fetures/appointments/manager/addServiceToRequest/add_service_to_request_cubit.dart';
@@ -119,18 +120,18 @@ class _CostDialogState extends State<CostDialog>
                             // Header
                             Container(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: const Row(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.monetization_on_outlined,
                                     color: kPrimaryColor,
                                     size: 28,
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'Payment Confirmation',
-                                    style: TextStyle(
+                                    S.of(context).paymentConfirmation,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: kPrimaryColor,
@@ -145,9 +146,9 @@ class _CostDialogState extends State<CostDialog>
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: Column(
                                 children: [
-                                  const Text(
-                                    'Total Cost',
-                                    style: TextStyle(
+                                  Text(
+                                    S.of(context).totalCost,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -180,10 +181,10 @@ class _CostDialogState extends State<CostDialog>
                                           ),
                                         ),
                                   const SizedBox(height: 20),
-                                  const Text(
-                                    'Do you want to proceed with this Cost?',
+                                  Text(
+                                    S.of(context).paymentDes,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ],
                               ),
@@ -200,7 +201,7 @@ class _CostDialogState extends State<CostDialog>
                                   onPressed:
                                       isLoading ? null : () => _closeDialog(),
                                   icon: const Icon(Icons.close),
-                                  label: const Text('Cancel'),
+                                  label: Text(S.of(context).cancel),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.grey.shade200,
                                     foregroundColor: Colors.black87,
@@ -257,7 +258,9 @@ class _CostDialogState extends State<CostDialog>
                                         )
                                       : const Icon(Icons.check),
                                   label: Text(
-                                    isLoading ? 'Processing...' : 'Confirm',
+                                    isLoading
+                                        ? 'Processing...'
+                                        : S.of(context).confirm,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),

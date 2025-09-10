@@ -1454,6 +1454,25 @@ class S {
     return Intl.message('Distance', name: 'distance', desc: '', args: []);
   }
 
+  String get save {
+    return Intl.message('Save', name: 'save', desc: '', args: []);
+  }
+  String get requestReview {
+    return Intl.message('Request Review', name: 'requestReview', desc: '', args: []);
+  }
+  String get paymentConfirmation {
+    return Intl.message('Payment Confirmation', name: 'paymentConfirmation', desc: '', args: []);
+  }
+  String get totalCost {
+    return Intl.message('Total Cost', name: 'totalCost', desc: '', args: []);
+  }
+  String get paymentDes {
+    return Intl.message('Do you want to proceed with this Cost?', name: 'paymentDes', desc: '', args: []);
+  }
+  String get confirm {
+    return Intl.message('Confirm', name: 'confirm', desc: '', args: []);
+  }
+
   /// `Back to Home`
   String get backToHome {
     return Intl.message('Back to Home', name: 'backToHome', desc: '', args: []);

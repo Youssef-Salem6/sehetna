@@ -39,8 +39,10 @@ class _ServiceCardState extends State<ServiceCard> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    ServiceView(serviceModel: widget.serviceModel),
+                builder: (context) => ServiceView(
+                  serviceModel: widget.serviceModel,
+                  isMultiable: widget.isMultiable == 0,
+                ),
               ),
             );
           },

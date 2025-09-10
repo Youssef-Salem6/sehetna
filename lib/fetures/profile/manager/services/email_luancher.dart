@@ -19,7 +19,6 @@ class EmailLauncher {
     String body = '',
     BuildContext? context,
   }) async {
-    debugPrint('Attempting to launch email to: $email');
 
     // First try direct Gmail app launch (for Android)
     if (await _launchGmailApp(email, subject, body)) return;
@@ -53,7 +52,6 @@ class EmailLauncher {
         return await launchUrl(gmailUri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      debugPrint('Gmail app launch error: $e');
     }
     return false;
   }
@@ -73,7 +71,6 @@ class EmailLauncher {
         return await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
     } catch (e) {
-      debugPrint('Mailto launch error: $e');
     }
     return false;
   }
@@ -96,7 +93,6 @@ class EmailLauncher {
         return await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      debugPrint('Gmail web launch error: $e');
     }
     return false;
   }

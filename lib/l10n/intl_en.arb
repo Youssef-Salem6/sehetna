@@ -185,5 +185,11 @@
     "deleteAccount" : "Delete Account",
     "deleteDialog" : "Are you sure you want to delete your account? This action cannot be undone.",
     "no" : "No",
-    "yse" : "Yes"
+    "yse" : "Yes",
+    "save":"Save",
+    "requestReview" : "Request Review",
+    "paymentConfirmation" : "Payment Confirmation",
+    "totalCost" : "Total Cost",
+    "paymentDes" : "Do you want to proceed with this Cost?",
+    "confirm" : "Confirm"
 }

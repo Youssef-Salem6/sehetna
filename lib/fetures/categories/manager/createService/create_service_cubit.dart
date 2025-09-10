@@ -97,12 +97,8 @@ class CreateServiceCubit extends Cubit<CreateServiceState> {
       }
 
       // Debug logging
-      print('Request fields:');
-      request.fields.forEach((key, value) => print('$key: $value'));
-      print('Request files:');
-      for (var file in request.files) {
-        print('${file.field}: ${file.filename}');
-      }
+      
+
 
       final response = await request.send();
       final responseString = await response.stream.bytesToString();
@@ -112,13 +108,11 @@ class CreateServiceCubit extends Cubit<CreateServiceState> {
       try {
         responseData = jsonDecode(responseString);
       } catch (e) {
-        print('Failed to parse response: $responseString');
         emit(CreateServiceFailure('Invalid response from server'));
         return;
       }
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: $responseData');
+
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (responseData.containsKey('data') &&
@@ -142,7 +136,6 @@ class CreateServiceCubit extends Cubit<CreateServiceState> {
         emit(CreateServiceFailure(errorMessage));
       }
     } catch (e) {
-      print('Exception during request creation: $e');
       emit(CreateServiceFailure(e.toString()));
     }
   }
